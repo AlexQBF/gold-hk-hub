@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AREAL · Гонконгский золотой хаб · v46</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────── THEMES ─────────── */
+:root[data-theme="dark"] {
+  --bg: #0A0A0B;
+  --surface: #111113;
+  --surface-2: #16161A;
+  --surface-3: #1C1C21;
+  --border: #232329;
+  --border-strong: #2F2F37;
+  --text: #E8E8EC;
+  --text-dim: #A8A8B5;
+  --text-faint: #7A7A88;
+  --accent: #B8975A;
+  --accent-light: #D4B57A;
+  --accent-dim: #7A6440;
+  --large: #C85C4D;
+  --medium: #B8975A;
+  --small: #6E6452;
+  --vault: #4A8B89;
+  --zone: #5F7372;
+  --marker-border: #F0F0EE;
+  --map-bg: #0a0908;
+  --popup-shadow: rgba(0,0,0,0.7);
+}
+:root[data-theme="light"] {
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface-2: #F1F0EB;
+  --surface-3: #E9E7E0;
+  --border: #DEDCD3;
+  --border-strong: #C5C2B5;
+  --text: #1A1A1F;
+  --text-dim: #4A4A55;
+  --text-faint: #6B6B78;
+  --accent: #8B6E2F;
+  --accent-light: #6E5520;
+  --accent-dim: #B8A47A;
+  --large: #B04937;
+  --medium: #8B6E2F;
+  --small: #7A6E50;
+  --vault: #2F6E6C;
+  --zone: #4A6261;
+  --marker-border: #1A1A1F;
+  --map-bg: #f0eee8;
+  --popup-shadow: rgba(70,60,40,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  line-height: 1.55;
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.container {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 40px 36px 64px;
+}
+
+/* ─────────── THEME TOGGLE ─────────── */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  user-select: none;
+  font-weight: 500;
+}
+.theme-toggle:hover { border-color: var(--accent-dim); color: var(--text); }
+.theme-toggle svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: inline-block; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: inline-block; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .label-dark { display: inline; }
+:root[data-theme="light"] .theme-toggle .label-light { display: none; }
+:root[data-theme="dark"] .theme-toggle .label-dark { display: none; }
+:root[data-theme="dark"] .theme-toggle .label-light { display: inline; }
+
+/* ─────────── MASTHEAD ─────────── */
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+  margin-bottom: 36px;
+}
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+h1 {
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+h1 .accent { color: var(--accent-light); font-weight: 500; }
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 12px;
+  line-height: 1.55;
+}
+.meta-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+.meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  text-align: right;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+.meta .v {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+.meta hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+  width: 100%;
+}
+
+/* ─────────── MAP ─────────── */
+.map-wrap {
+  display: grid;
+  grid-template-columns: 305px 1fr;
+  gap: 16px;
+  margin-bottom: 56px;
+}
+.legend-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 22px 20px;
+  height: calc(100vh - 260px);
+  min-height: 580px;
+  max-height: 880px;
+  overflow-y: auto;
+}
+.legend-section { margin-bottom: 26px; }
+.legend-section:last-child { margin-bottom: 0; }
+
+.legend-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 4px 7px 0;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s, color 0.15s;
+  color: var(--text);
+}
+.legend-item.disabled { opacity: 0.32; }
+.legend-item:hover:not(.disabled) .legend-label { color: var(--accent-light); }
+
+.dot {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.dot.refinery { background: var(--large); border: 1.5px solid var(--marker-border); }
+.dot.minter { background: var(--medium); border: 1.5px solid var(--marker-border); }
+.dot.large { background: var(--large); border: 1.5px solid var(--marker-border); }
+.dot.medium { background: var(--medium); border: 1.5px solid var(--marker-border); }
+.dot.small { background: var(--small); border: 1.5px solid var(--marker-border); }
+.dot.vault {
+  background: var(--vault);
+  border-radius: 2px;
+  transform: rotate(45deg);
+  border: 1.5px solid var(--marker-border);
+  width: 10px; height: 10px;
+  margin: 2px;
+}
+.dot.zone {
+  background: rgba(95, 115, 114, 0.18);
+  border: 1px dashed var(--zone);
+}
+.dot.exchange {
+  background: var(--accent);
+  border: 1.5px solid var(--marker-border);
+  width: 10px; height: 10px;
+  transform: rotate(45deg);
+  border-radius: 0;
+  margin: 2px;
+}
+
+.legend-label {
+  font-size: 13px;
+  flex-grow: 1;
+  transition: color 0.15s;
+  line-height: 1.3;
+}
+.legend-sub {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  letter-spacing: 0.03em;
+  margin-top: 3px;
+}
+.legend-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.legend-expand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-left: 4px;
+  width: 12px;
+  text-align: center;
+  display: inline-block;
+  transition: transform 0.2s, color 0.18s;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.legend-item.expanded .legend-expand {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+.legend-item:hover .legend-expand {
+  color: var(--accent-light);
+}
+
+.legend-children {
+  display: none;
+  margin: 2px 0 10px 26px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+.legend-children.open { display: block; }
+.legend-child {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 11.5px;
+  color: var(--text);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  line-height: 1.3;
+  user-select: none;
+}
+.legend-child.disabled { opacity: 0.35; }
+.legend-child:hover:not(.disabled) .legend-child-name { color: var(--accent-light); }
+.legend-child-check {
+  width: 12px; height: 12px;
+  border: 1px solid var(--border-strong);
+  flex-shrink: 0;
+  position: relative;
+  background: var(--surface-2);
+  transition: border-color 0.15s, background 0.15s;
+}
+.legend-child:not(.disabled) .legend-child-check {
+  border-color: var(--accent-dim);
+  background: var(--accent);
+}
+.legend-child:not(.disabled) .legend-child-check::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 4px;
+  width: 3px; height: 6px;
+  border: solid var(--bg);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.legend-child-name {
+  flex-grow: 1;
+  transition: color 0.15s;
+}
+.legend-child-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  margin-left: 4px;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-left: 2px solid var(--accent-dim);
+}
+
+#map {
+  height: calc(100vh - 260px);
+  min-height: 580px;
+  max-height: 880px;
+  background: var(--map-bg);
+  border: 1px solid var(--border);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* ─────────── LEAFLET OVERRIDES ─────────── */
+.leaflet-container {
+  background: var(--map-bg);
+  font-family: 'Inter', sans-serif;
+}
+.leaflet-popup-content-wrapper {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: 0;
+  box-shadow: 0 16px 48px var(--popup-shadow);
+}
+.leaflet-popup-content {
+  margin: 0;
+  padding: 16px 18px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.5;
+  min-width: 240px;
+  max-width: 290px;
+}
+.leaflet-popup-tip {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+}
+.leaflet-popup-close-button {
+  color: var(--text-faint) !important;
+  font-size: 16px !important;
+  padding: 6px 8px 0 0 !important;
+}
+.leaflet-popup-close-button:hover { color: var(--accent-light) !important; }
+
+.leaflet-control-zoom a {
+  background: var(--surface) !important;
+  color: var(--text-dim) !important;
+  border: 1px solid var(--border) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--surface-2) !important;
+  color: var(--accent) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.35) !important;
+  color: #c5c2b5 !important;
+  font-size: 10px !important;
+  padding: 2px 8px !important;
+}
+:root[data-theme="light"] .leaflet-control-attribution {
+  background: rgba(255,255,255,0.85) !important;
+  color: var(--text-faint) !important;
+}
+.leaflet-control-attribution a { color: var(--accent) !important; }
+.leaflet-attribution-flag { display: none !important; }
+
+.popup-cat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.popup-cat.large { color: var(--large); }
+.popup-cat.medium { color: var(--accent); }
+.popup-cat.small { color: var(--small); }
+.popup-cat.vault { color: var(--vault); }
+.popup-cat.zone { color: var(--zone); }
+
+.popup-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.popup-sub {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 11.5px;
+  border-top: 1px solid var(--border);
+  gap: 12px;
+}
+.popup-row span:first-child {
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.popup-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+}
+.popup-note {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.popup-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.popup-status.confirmed { color: #6E9D7A; }
+.popup-status.likely { color: var(--accent); }
+.popup-status.verify { color: #C99055; }
+.popup-status.planned { color: var(--vault); }
+.popup-status::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ─────────── ACCREDITATION BADGE ─────────── */
+.accred-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0 6px;
+}
+.accred-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 3px 7px;
+  border: 1px solid;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+.accred-badge.lbma { color: #C99055; border-color: #C99055; background: rgba(201,144,85,0.08); }
+.accred-badge.good-delivery { color: #6E9D7A; border-color: #6E9D7A; background: rgba(110,157,122,0.08); }
+.accred-badge.cgse { color: var(--accent); border-color: var(--accent); background: rgba(184,151,90,0.08); }
+.accred-badge.comex { color: #4A8B89; border-color: #4A8B89; background: rgba(74,139,137,0.08); }
+.accred-badge.dmcc { color: #A07AC7; border-color: #A07AC7; background: rgba(160,122,199,0.08); }
+
+/* ─────────── CONTACT LINKS ─────────── */
+.popup-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--popup-border, rgba(0,0,0,0.08));
+}
+.popup-contacts a, .popup-contacts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.popup-contacts a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.popup-contacts svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+  flex-shrink: 0;
+}
+
+/* ─────────── INLINE TOOLTIPS ─────────── */
+.term {
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  position: relative;
+  white-space: nowrap;
+}
+.term::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #15191F;
+  color: #ECECEC;
+  font-size: 11.5px;
+  font-weight: 400;
+  padding: 9px 12px;
+  border-radius: 5px;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  text-align: left;
+  line-height: 1.45;
+  letter-spacing: 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.06);
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+.term::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #15191F;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  pointer-events: none;
+  z-index: 10001;
+}
+.term:hover::after, .term:hover::before,
+.term:focus::after, .term:focus::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.marker-refiner {
+  border-radius: 50%;
+  border: 2px solid var(--marker-border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.marker-refiner:hover { transform: scale(1.18); }
+.marker-vault {
+  width: 13px; height: 13px;
+  background: var(--vault);
+  border: 1.5px solid var(--marker-border);
+  transform: rotate(45deg);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.marker-vault:hover { transform: rotate(45deg) scale(1.18); }
+
+.marker-exchange {
+  width: 13px; height: 13px;
+  background: var(--accent);
+  border: 1.5px solid var(--marker-border);
+  transform: rotate(45deg);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.marker-exchange:hover { transform: rotate(45deg) scale(1.18); }
+
+.marker-info {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--marker-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: italic;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.marker-info:hover { transform: scale(1.15); }
+
+/* ─────────── CONTENT ─────────── */
+.section { margin-bottom: 56px; }
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+h2 {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.022em;
+  color: var(--text);
+  margin-bottom: 22px;
+}
+h2 .accent { color: var(--accent-light); font-weight: 500; }
+
+/* ─────────── BOUNDARY EDIT MODE ─────────── */
+.edit-control-btn {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  transition: background-color 0.15s, color 0.15s;
+}
+.edit-control-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.edit-control-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.edit-vertex {
+  background: #fff;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.edit-vertex:active { cursor: grabbing; }
+.edit-vertex.dragging {
+  background: var(--accent);
+  transform: scale(1.4);
+}
+
+/* Marker drag mode visual hint */
+body.markers-editing .marker-refiner,
+body.markers-editing .marker-vault,
+body.markers-editing .marker-exchange,
+body.markers-editing .leaflet-marker-icon {
+  cursor: move !important;
+}
+body.markers-editing .leaflet-marker-icon {
+  box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0,0,0,0.4) !important;
+}
+
+.edit-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.edit-modal-bg.open { display: flex; }
+.edit-modal {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 28px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+.edit-modal h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.edit-modal p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.edit-modal textarea {
+  flex: 1;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 280px;
+  margin-bottom: 16px;
+}
+.edit-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.edit-modal-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.edit-modal-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.lead {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 26px;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 22px 22px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.card:hover { border-color: var(--border-strong); }
+
+.card-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.card-body {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.card-body p + p { margin-top: 9px; }
+.card-body strong { color: var(--text); font-weight: 500; }
+.card-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  background: var(--surface-2);
+  padding: 1px 6px;
+  color: var(--accent-light);
+}
+
+dl.kv { margin: 14px 0 2px; }
+.kv-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  gap: 12px;
+}
+.kv-row:last-child { border-bottom: 1px solid var(--border); }
+.kv-row dt {
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding-top: 2px;
+  font-weight: 500;
+}
+.kv-row dd {
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+ul.refined { list-style: none; margin: 12px 0; }
+ul.refined li {
+  padding: 9px 0 9px 18px;
+  position: relative;
+  font-size: 13px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  line-height: 1.55;
+}
+ul.refined li:last-child { border-bottom: 1px solid var(--border); }
+ul.refined li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 17px;
+  width: 10px;
+  height: 1px;
+  background: var(--accent-dim);
+}
+ul.refined li strong { color: var(--text); font-weight: 500; }
+
+.flow {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin: 22px 0;
+}
+.flow-step {
+  padding: 12px 14px 14px;
+  position: relative;
+  text-align: left;
+}
+.flow-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -8px;
+  top: 18px;
+  color: var(--accent-dim);
+  font-size: 13px;
+}
+.flow-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.flow-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
+}
+.flow-note {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.callout {
+  border-left: 2px solid var(--accent);
+  padding: 12px 0 12px 18px;
+  margin: 22px 0;
+  background: linear-gradient(to right, rgba(184, 151, 90, 0.05), transparent 40%);
+}
+:root[data-theme="light"] .callout {
+  background: linear-gradient(to right, rgba(139, 110, 47, 0.07), transparent 40%);
+}
+.callout-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.callout p {
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.callout p .accent { color: var(--accent-light); font-weight: 500; }
+
+.subsection-heading {
+  margin: 36px 0 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.subsection-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.subsection-lead {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 12.5px;
+}
+.tbl th, .tbl td {
+  text-align: left;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.tbl th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+  background: var(--surface-2);
+}
+.tbl td { color: var(--text-dim); }
+.tbl td strong { color: var(--text); font-weight: 500; }
+.tbl tr:hover td { color: var(--text); background: rgba(184, 151, 90, 0.03); }
+:root[data-theme="light"] .tbl tr:hover td { background: rgba(139, 110, 47, 0.04); }
+
+.tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  margin-right: 4px;
+  font-weight: 500;
+}
+.tag.large { color: var(--large); border-color: var(--large); }
+.tag.medium { color: var(--accent); border-color: var(--accent-dim); }
+.tag.small { color: var(--small); border-color: var(--small); }
+.tag.new { color: var(--vault); border-color: var(--vault); }
+
+footer {
+  border-top: 1px solid var(--border);
+  margin-top: 56px;
+  padding-top: 26px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  line-height: 1.7;
+}
+footer strong { color: var(--accent-dim); font-weight: 500; }
+footer .sources {
+  font-size: 10px;
+  line-height: 1.65;
+  color: var(--text-faint);
+  max-width: 800px;
+}
+footer .sources span { color: var(--text-dim); }
+
+@media (max-width: 1080px) {
+  .container { padding: 28px 16px; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  .masthead { grid-template-columns: 1fr; gap: 18px; }
+  .meta-block { align-items: flex-start; }
+  .meta { text-align: left; }
+  .map-wrap { grid-template-columns: 1fr; }
+  .legend-panel { height: auto; }
+  #map { height: 480px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; }
+  .flow-step:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -6px; transform: translateX(50%); }
+  footer { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="masthead">
+    <div>
+      <h1>Рынок золота · <span class="accent">Гонконг и регион</span></h1>
+      <p class="subtitle">Карта инфраструктуры рынка золота в радиусе Гонконга: аффинажные мощности по объёму производства, таможенные хранилища и фрипорты, особые экономические зоны. Брифинг для понимания, как устроен конечный сбыт металла за пределами западных рынков.</p>
+    </div>
+    <div class="meta-block">
+      <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+        <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" /><line x1="12" y1="2" x2="12" y2="5" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="22" stroke-linecap="round"/><line x1="2" y1="12" x2="5" y2="12" stroke-linecap="round"/><line x1="19" y1="12" x2="22" y2="12" stroke-linecap="round"/><line x1="4.93" y1="4.93" x2="6.97" y2="6.97" stroke-linecap="round"/><line x1="17.03" y1="17.03" x2="19.07" y2="19.07" stroke-linecap="round"/><line x1="4.93" y1="19.07" x2="6.97" y2="17.03" stroke-linecap="round"/><line x1="17.03" y1="6.97" x2="19.07" y2="4.93" stroke-linecap="round"/></svg>
+        <span class="label-light">Светлая тема</span>
+        <span class="label-dark">Тёмная тема</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="map-wrap">
+      <aside class="legend-panel">
+        <div class="legend-section">
+          <div class="legend-title">Условные обозначения</div>
+
+          <div class="legend-item" data-layer="refinery">
+            <span class="dot refinery"></span>
+            <span class="legend-label">Аффинажные заводы <span class="legend-sub">полный цикл переработки сырья</span></span>
+            <span class="legend-count">3</span>
+            <span class="legend-expand">›</span>
+          </div>
+          <div class="legend-children" data-children="refinery"></div>
+
+          <div class="legend-item" data-layer="minter">
+            <span class="dot minter"></span>
+            <span class="legend-label">Дилеры драгоценных металлов <span class="legend-sub">торговля + право чеканки CGSE</span></span>
+            <span class="legend-count">14</span>
+            <span class="legend-expand">›</span>
+          </div>
+          <div class="legend-children" data-children="minter"></div>
+
+          <div class="legend-item" data-layer="vault">
+            <span class="dot vault"></span>
+            <span class="legend-label">Хранилища (фрипорты) <span class="legend-sub">беспошлинное хранение</span></span>
+            <span class="legend-count">8</span>
+            <span class="legend-expand">›</span>
+          </div>
+          <div class="legend-children" data-children="vault"></div>
+
+          <div class="legend-item" data-layer="exchange">
+            <span class="dot exchange"></span>
+            <span class="legend-label">Биржа золота <span class="legend-sub">штаб-квартира CGSE</span></span>
+            <span class="legend-count">1</span>
+            <span class="legend-expand">›</span>
+          </div>
+          <div class="legend-children" data-children="exchange"></div>
+
+          <div class="legend-item" data-layer="zone">
+            <span class="dot zone"></span>
+            <span class="legend-label">Особые таможенные зоны <span class="legend-sub">льготный налоговый режим</span></span>
+            <span class="legend-count">3</span>
+            <span class="legend-expand">›</span>
+          </div>
+          <div class="legend-children" data-children="zone"></div>
+        </div>
+      </aside>
+
+      <div id="map"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">/ 01 — Почему Гонконг</div>
+    <h2>Гонконг — <span class="accent">офшорные ворота</span> в КНР для драгметаллов</h2>
+    <p class="lead">Гонконг и материковый Китай — две разные таможенные территории под одной государственной крышей. Эта разница и есть основной экономический мотив существования Гонконга как золотого хаба: металл свободно лежит в HK без налогов и пошлин, а в КНР заходит порциями через лицензированные банки по мере открытия квот.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-num">САР Гонконг</div>
+        <div class="card-title">Гонконг — свободный порт</div>
+        <div class="card-body">
+          <p>Вся территория Гонконга работает как открытый порт. Ввоз и вывоз золота не облагаются ни таможенной пошлиной, ни НДС/налогом с продаж. Акциз действует только на 4 товара: алкоголь, табак, нефтепродукты, метанол — драгметаллы туда не входят.</p>
+          <dl class="kv">
+            <div class="kv-row"><dt>Импортная пошлина</dt><dd>0%</dd></div>
+            <div class="kv-row"><dt>НДС</dt><dd>отсутствует как класс</dd></div>
+            <div class="kv-row"><dt>Таможня</dt><dd>отдельная от КНР</dd></div>
+            <div class="kv-row"><dt>Юань (RMB)</dt><dd>свободная конвертация (офшорный CNH)</dd></div>
+            <div class="kv-row"><dt>KYC / AML</dt><dd>режим DPMS с апреля 2023 (категории A / B)</dd></div>
+          </dl>
+          <p style="margin-top:12px;"><strong>На практике:</strong> металл можно ввозить, переплавлять, хранить, перепродавать и вывозить без налоговой нагрузки — пока он не пересёк границу с КНР.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">Материковая КНР</div>
+        <div class="card-title">КНР — закрытый рынок через биржу SGE</div>
+        <div class="card-body">
+          <p>Ввоз золота в материковый Китай монополизирован: <strong>~15 коммерческих банков с лицензией Народного банка Китая (PBoC)</strong> — единственный официальный канал. Весь оптовый оборот идёт через Шанхайскую биржу золота (SGE).</p>
+          <dl class="kv">
+            <div class="kv-row"><dt>НДС (базовый)</dt><dd>13%</dd></div>
+            <div class="kv-row"><dt>Сделки на SGE / SHFE</dt><dd>освобождены от НДС по «стандартному» золоту</dd></div>
+            <div class="kv-row"><dt>Импорт</dt><dd>только через лицензированные банки</dd></div>
+            <div class="kv-row"><dt>Регулятор</dt><dd>Народный банк Китая (PBoC)</dd></div>
+            <div class="kv-row"><dt>Биржа</dt><dd>SGE (основная) + SGEI (международная секция)</dd></div>
+          </dl>
+          <p style="margin-top:12px;"><strong>SGEI</strong> — международная секция SGE в Шанхайской свободной экономической зоне, для таможни она считается «вне Китая». Иностранцы могут торговать в юанях, не ввозя металл фактически на территорию КНР.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Что это значит для AREAL</div>
+      <p>Гонконг — не «обход пошлин», а <span class="accent">промежуточное хранилище перед поставкой в КНР</span>. Металл лежит в HK без налогов сколько нужно — и заходит в материковый Китай порциями по мере открытия квот лицензированных банков. Российское золото можно ввезти, переплавить в HK-аффинаже (Heraeus, Metalor, ACPMR) и получить CGSE/LBMA-сертифицированный слиток — после этого он торгуется на бирже как локальный продукт, без западных санкций. Это и есть ценность HK-инфраструктуры.</p>
+    </div>
+
+    <div class="subsection-heading">
+      <div class="subsection-label">Особые экономические зоны рядом</div>
+      <p class="subsection-lead">Помимо самого Гонконга, в соседнем Шэньчжэне и регионе Гуандун-Макао работают три специальные зоны со своими режимами. Они связаны с гонконгским рынком драгметаллов в разной степени.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-num">Зона · Цяньхай</div>
+        <div class="card-title">СЭЗ Цяньхай (Qianhai)</div>
+        <div class="card-body">
+          Пилотная свободная экономическая зона в Шэньчжэне, мост между Гонконгом и материком. С 2014 года — точка регистрации 68 членов CGSE. Через Цяньхай работает <strong>программа Shenzhen–HK Gold Connect</strong> (с 2017 года, 70 гонконгских дилеров торгуют физическим золотом в слитках 1 кг для китайских инвесторов). Заявлен таможенный склад на 1500 тонн.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Зона · Хэнцинь</div>
+        <div class="card-title">Зона глубокого сотрудничества Хэнцинь</div>
+        <div class="card-body">
+          Часть Гуандунской пилотной СЭЗ, ориентирована на интеграцию с Макао. Для драгметаллов менее значима — основная специализация: услуги, туризм, инновации. На карте оставлена как контекстная зона; прямого аффинажного применения для AREAL здесь нет.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Зона · Шанхайская СЭЗ</div>
+        <div class="card-title">Шанхайская пилотная СЭЗ</div>
+        <div class="card-body">
+          На карте не показана (вне гонконгского радиуса), но важна в системе: <strong>SGEI</strong> зарегистрирована именно здесь, и её хранилище формально считается территорией «вне таможни КНР». Это был главный шлюз для иностранцев на рынок SGE — до открытия офшорного хранилища в Гонконге в 2025 году.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">/ 02 — Цепочка поставок</div>
+    <h2>Путь металла: от шахты <span class="accent">до конечного покупателя</span></h2>
+    <p class="lead">Базовая цепочка для золота, добытого вне Китая и направленного на конечный сбыт в Азии. Каждый шаг — отдельный рынок со своими стандартами качества, тарифами и контрагентами.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-title">Шахта</div>
+        <div class="flow-note">Концентрат или сплав-доре (80–95% чистоты)</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-title">Аффинаж</div>
+        <div class="flow-note">Очистка до 99,99% чистоты. Стандарт качества (LBMA, SGE, CGSE) определяет, куда можно продать</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-title">Хранилище</div>
+        <div class="flow-note">Беспошлинное хранение в фрипорте (HKIA, Brink's, Loomis, Malca-Amit)</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-title">Биржа</div>
+        <div class="flow-note">CGSE в Гонконге или SGE/SGEI в КНР — биржевая поставка и ценообразование</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">05</div>
+        <div class="flow-title">Покупатель</div>
+        <div class="flow-note">Центробанки, ювелирная промышленность, инвестиционные слитки, индустрия</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">/ 03 — Аффинажные заводы и дилеры</div>
+    <h2>Реальные аффинажные мощности — <span class="accent">три завода. Остальные 14 — дилеры</span></h2>
+    <p class="lead">Важная методологическая правка: статус CGSE Authorised Bar Minter ≠ наличие плавильного завода. Большинство участников рынка золота в HK имеют право штамповать слитки из уже очищенного металла, но не принимают сырьё, доре или лом на полноценную переработку. На карте — два отдельных слоя: 3 рефайнера с полным производственным циклом и 14 минтеров/дилеров.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-num"><span class="tag large">Refineries</span> 3 объекта</div>
+        <div class="card-title">Реальные аффинажные заводы в радиусе HK</div>
+        <div class="card-body">
+          <p><strong>Heraeus Hong Kong</strong> (Фанлин, 200 т/год) и <strong>Metalor Technologies</strong> (Юэнь-Лонг, 200 т/год) — оба <strong>LBMA Good Delivery</strong>, максимально жёсткий compliance: проверка происхождения, OECD Due Diligence, ежегодный аудит. Это главные каналы аффинажа для иностранцев, чьё золото потом принимается во всём мире. Оба работают в Гонконге <strong>с 1974 года</strong> — старейшие игроки рынка.</p>
+          <p><strong>AC Precious Metals Refinery</strong> (Хун-Хом, ~50 т/год) — относительно новый игрок, единственный реальный CGSE-аффинажер. Запущен в 2021, плавильня — в 2023. Аффилирован с семьёй Cheung (президент CGSE). Не LBMA, но имеет физический производственный комплекс.</p>
+          <p style="margin-top:10px;"><strong>Важно по Metalor:</strong> в 2023 году докупил второй refining-site у Wing Fung Precious Metals. Сейчас фактически расширенные мощности под одним брендом.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num"><span class="tag medium">Minters / Dealers</span> 14 объектов</div>
+        <div class="card-title">Authorised bar minters и bullion dealers</div>
+        <div class="card-body">
+          <p>Это участники, которые имеют право штамповать слитки CGSE Good Delivery (1 кг, чистота 99,99%), но не имеют собственного производственного refining-site. Берут уже очищенный металл и превращают его в продукт со своим клеймом.</p>
+          <p>Внутри 14 объектов есть градация: <strong>2 крупных</strong> — Cheung's Gold Traders (формально CGSE-аффинажер с 1997, но физический аффинаж сейчас через ACPMR) и Wing Fung (топ-3 по обороту, но плавильня в 2023 продана Metalor).</p>
+          <p><strong>12 локальных</strong> — Kaiser, Po Sang, Marigold, King Fook, Wong Sha, Lee Cheong, First Asia Merchants, Tai Fung, WZ Gold, Acetop, Sun Yip Hong, Upbest. Это в основном традиционные семейные bullion-бизнесы Гонконга с 1940-х годов, часть с банковской аффилиацией (Po Sang — BoC).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Почему статус аккредитации критичен</div>
+      <p><strong>LBMA Good Delivery</strong> — это билет на международный рынок. Слитки этого стандарта принимают западные ЦБ, банки JPMorgan/HSBC/UBS, ETF GLD/IAU и все 80 vault'ов LBMA по миру. Heraeus и Metalor дают такой выход. <strong>CGSE-only</strong> аккредитация (ACPMR) — более локальная: слитки торгуются на бирже Гонконга и принимаются на SGE (Шанхай), но в Лондоне или Нью-Йорке за них дадут дисконт. Если задача — найти контрагента для аффинажа доре под максимально широкий сбыт, <span class="accent">круг кандидатов — это 2 LBMA-завода</span>, не 17. ACPMR — третий вариант для регионального оборота через Большой Китай.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">/ 04 — Фрипорты и хранилища</div>
+    <h2>Фрипорты и таможенное хранение — <span class="accent">где металл «живёт» между сделками</span></h2>
+    <p class="lead">«Фрипорт» применительно к драгметаллам — это режим хранения, при котором ввезённое золото юридически считается ещё не растаможенным. Никаких пошлин и налогов до момента, пока металл не «выйдет» в локальный оборот. Удобно для транзита, биржевых поставок и долгосрочного частного хранения.</p>
+
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Объект</th>
+          <th>Локация</th>
+          <th>Тип</th>
+          <th>Что важно</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Хранилище драгметаллов аэропорта Гонконга (HKIA)</strong></td>
+          <td>Аэропорт Гонконга, Чек Лап Кок</td>
+          <td>Таможенный склад при аэропорте</td>
+          <td>Главный перевалочный пункт региона, через него проходит большая часть физических поставок. Расширение до <strong>1000 тонн</strong> по Policy Address 2024</td>
+        </tr>
+        <tr>
+          <td><strong>Гонконгское хранилище SGE</strong> <span class="tag new">НОВОЕ · июн 2025</span></td>
+          <td>Bank of China (HK)</td>
+          <td>Сертифицированное хранилище Шанхайской биржи золота</td>
+          <td>Первое офшорное хранилище SGE за пределами материка. Поддерживает новые контракты <code>iPAu99.99HK</code> и <code>iPAu99.5HK</code>, расчёты в юанях. Хранение бесплатно до конца 2025 года</td>
+        </tr>
+        <tr>
+          <td><strong>Хранилище Brink's в Гонконге</strong></td>
+          <td>Цинъи / рядом с аэропортом</td>
+          <td>Частное хранилище слитков</td>
+          <td>Часть глобальной сети Brink's. Институциональные и крупные частные клиенты. Часто используется как место поставки по контрактам CGSE</td>
+        </tr>
+        <tr>
+          <td><strong>Хранилище Loomis в Гонконге</strong></td>
+          <td>Коулун-Бэй</td>
+          <td>Частное хранилище слитков</td>
+          <td>Одно из 4 глобальных хранилищ Loomis International (Цюрих, Гонконг, Дублин, Лондон). Таможенный режим хранения</td>
+        </tr>
+        <tr>
+          <td><strong>Malca-Amit / UltraVault HK</strong></td>
+          <td>Цим-Ша-Цуй / возле аэропорта</td>
+          <td>Хранилище в свободной зоне</td>
+          <td>100% беспошлинный режим хранения. Сертификации CTPAT, AEO. Специализация — трансграничная логистика драгметаллов</td>
+        </tr>
+        <tr>
+          <td><strong>Хранилище SF Express</strong> <span class="tag new">НОВОЕ · окт 2026</span></td>
+          <td>Комплекс SF Holding возле аэропорта</td>
+          <td>Хранилище курьерской группы</td>
+          <td>Новое хранилище курьерской группы SF (крупнейшая в КНР). Ёмкость 50–100 тонн. Сигнал: интеграция логистики и хранения металла</td>
+        </tr>
+        <tr>
+          <td><strong>Цяньхайское таможенное хранилище CGSE</strong></td>
+          <td>СЭЗ Цяньхай, Шэньчжэнь</td>
+          <td>Трансграничный таможенный склад</td>
+          <td>Заявленные 1500 тонн ёмкости. Инициатива CGSE для соединения материковой добычи и шэньчжэньской переработки с международными участниками</td>
+        </tr>
+        <tr>
+          <td><strong>Шэньчжэньское хранилище SGE</strong></td>
+          <td>Шэньчжэнь</td>
+          <td>Сертифицированное международное хранилище SGE</td>
+          <td>Открыто в 2019 году совместно с ICBC. Поддерживает физические поставки по международным контрактам SGEI; формально часть «международной» части системы SGE</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-label">Стратегический сдвиг · 2025</div>
+      <p>Открытие <span class="accent">гонконгского хранилища SGE в июне 2025</span> — это не просто новое хранилище. Это попытка SGE построить параллельную западной систему физической поставки за пределами материка с расчётами в юанях. Планируется аналогичная сеть в Сингапуре, Цюрихе и Дубае. Для держателей металла это новый легитимный канал поставки в Китай без необходимости проходить через классические маршруты LBMA.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">/ 05 — Биржи и конечные покупатели</div>
+    <h2>Биржи и конечные покупатели — <span class="accent">кто платит на выходе</span></h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-num">Биржи</div>
+        <div class="card-title">CGSE · SGE · SGEI</div>
+        <div class="card-body">
+          <ul class="refined">
+            <li><strong>CGSE</strong> (Chinese Gold and Silver Exchange Society, осн. 1910) — единственная официальная биржа физического золота в Гонконге. 171 корпоративный член, контракты в гонконгских долларах, юанях и долларах США (формат Loco London). Ключевой контракт — Renminbi Kilobar (первый офшорный золотой инструмент в юанях).</li>
+            <li><strong>SGE</strong> (Shanghai Gold Exchange, Шанхайская биржа золота) — государственная биржа КНР под надзором Народного банка Китая. Главный канал торговли физическим золотом внутри материка. С ноября 2025 года сделки SGE по «стандартному» золоту остаются без НДС, но возможности вычета НДС для не-членов биржи снижены.</li>
+            <li><strong>SGEI</strong> (Shanghai International Gold Exchange, международная секция SGE) — расположена в Шанхайской свободной зоне. С 2014 года открывает доступ для иностранных институциональных участников; около 52 международных членов.</li>
+            <li><strong>Программы Connect</strong> — Shanghai–HK Gold Connect (с 2015 года) и Shenzhen–HK Gold Connect (с 2017 года) соединяют гонконгских дилеров с китайскими инвесторами через зону Цяньхай.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">Конечные покупатели</div>
+        <div class="card-title">Кто покупает физическое золото</div>
+        <div class="card-body">
+          <ul class="refined">
+            <li><strong>Ювелирная промышленность</strong> — крупнейший по объёму сегмент Китая. Закупки идут от членов SGE на оптовом уровне, далее — в производство и розницу. После реформы НДС в ноябре 2025 года сегмент сжимается, спрос перетекает в инвестиционные слитки.</li>
+            <li><strong>Народный банк Китая (центробанк)</strong> — стратегический покупатель в резервы. Закупки непрозрачны, но за последние годы PBoC активно наращивал золотую позицию. Канал — биржа SGE.</li>
+            <li><strong>Инвестиционный спрос (слитки, монеты)</strong> — взрывной рост: в 2024 году розничный инвестиционный сегмент достиг 336 тонн (максимум с 2013 года), тренд усиливается в 2025-м. Покупатели — китайские банки и розничные клиенты через них.</li>
+            <li><strong>Промышленность</strong> — электроника, медтех, химия. Стабильный, но небольшой сегмент. После реформы НДС — давление на маржинальность.</li>
+            <li><strong>Биржевые фонды (ETF) и финансовые инструменты</strong> — золотые ETF на SGE и HKEx; доступ для иностранцев через SGEI, а теперь и через контракты гонконгского хранилища.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Вывод для AREAL</div>
+      <p>Гонконг даёт <span class="accent">три параллельных канала сбыта</span>: (a) через LBMA-аффинажеров на глобальный рынок (Heraeus или Metalor), (b) через CGSE-локальные слитки на гонконгский и азиатский рынок, (c) через новое гонконгское хранилище SGE напрямую в расчёты юанями с материком без необходимости получать импортную лицензию КНР. Выбор канала определяет тип контрагента, ценообразование, валюту расчётов и нагрузку на compliance.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="sources">
+      <strong>ИСТОЧНИКИ</strong> · <span>Список LBMA Good Delivery · реестр аккредитованных аффинажеров CGSE · Customs &amp; Excise Гонконга (режим DPMS) · ответы Legislative Council по расширению PMS · объявления Shanghai Gold Exchange (sge.com.cn, июнь 2025) · BullionStar Gold University · Bloomberg / SCMP / Reuters · публичные материалы Heraeus, Metalor, AC Precious Metals</span>
+    </div>
+    <div>
+      <strong>v46</strong> · Брифинг
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ─────────── HK SAR REAL BOUNDARY ─────────── */
+// Упрощённый контур реальной границы Hong Kong SAR
+// (52 точки, включает Lantau + основной массив + offshore islets).
+// Источник: data.gov.hk hksar_18_district_boundary (упрощённая аппроксимация).
+const HK_SAR_BOUNDARY = [
+  [22.4747, 113.9507],
+  [22.4804, 113.9651],
+  [22.4845, 113.9741],
+  [22.4911, 113.9873],
+  [22.5045, 114.0087],
+  [22.5076, 114.0290],
+  [22.5061, 114.0398],
+  [22.5029, 114.0501],
+  [22.5046, 114.0558],
+  [22.5114, 114.0575],
+  [22.5164, 114.0637],
+  [22.5203, 114.0721],
+  [22.5368, 114.0916],
+  [22.5354, 114.0947],
+  [22.5344, 114.0983],
+  [22.5351, 114.1039],
+  [22.5313, 114.1094],
+  [22.5301, 114.1102],
+  [22.5296, 114.1122],
+  [22.5339, 114.1166],
+  [22.5372, 114.1215],
+  [22.5433, 114.1394],
+  [22.5604, 114.1596],
+  [22.5582, 114.1953],
+  [22.5465, 114.2060],
+  [22.5370, 114.2166],
+  [22.5373, 114.2314],
+  [22.5571, 114.2472],
+  [22.5589, 114.2836],
+  [22.5544, 114.3296],
+  [22.5319, 114.3498],
+  [22.5100, 114.3750],
+  [22.4750, 114.3950],
+  [22.4355, 114.4113],
+  [22.3933, 114.4209],
+  [22.3498, 114.4233],
+  [22.3150, 114.4200],
+  [22.2750, 114.4100],
+  [22.2400, 114.3950],
+  [22.2150, 114.3750],
+  [22.1941, 114.3581],
+  [22.1674, 114.3224],
+  [22.1489, 114.2736],
+  [22.1499, 114.2187],
+  [22.1562, 114.1699],
+  [22.1690, 114.1349],
+  [22.1823, 114.1047],
+  [22.1871, 114.0628],
+  [22.1868, 114.0329],
+  [22.1833, 114.0127],
+  [22.1725, 113.9869],
+  [22.1429, 113.9426],
+  [22.1327, 113.9093],
+  [22.1601, 113.8664],
+  [22.1922, 113.8348],
+  [22.2192, 113.8197],
+  [22.2650, 113.8150],
+  [22.2900, 113.8150],
+  [22.3150, 113.8300],
+  [22.3400, 113.8500],
+  [22.3700, 113.8600],
+  [22.3950, 113.8700],
+  [22.4150, 113.8820],
+  [22.4300, 113.8950],
+  [22.4431, 113.9080],
+  [22.4520, 113.9193],
+  [22.4589, 113.9293],
+  [22.4666, 113.9389]
+];
+
+/* ─────────── DATA ─────────── */
+const refineries = [
+  {
+    name: 'Heraeus Hong Kong', area: 'Фанлин, Новые территории',
+    coords: [22.4985, 114.1468], capacity: '200 т/год',
+    accred: 'LBMA Good Delivery · CGSE · DPMS Cat. A',
+    owner: 'Heraeus Group (Германия)',
+    tier: 'lbma', status: 'confirmed',
+    site: 'heraeus-precious-metals.com', phone: '+852 2675 1200', email: 'tr.hlh@heraeus.com',
+    note: 'Действующий завод с полным циклом аффинажа драгметаллов. Бывший комплекс Johnson Matthey. Hong Kong trading desk — в Коулуне.'
+  },
+  {
+    name: 'Metalor Technologies', area: 'Yuen Long Industrial Estate, Новые территории',
+    coords: [22.4586, 114.0225], capacity: '200 т/год',
+    accred: 'LBMA Good Delivery · LPPM · DMCC',
+    owner: 'Metalor (часть Tanaka Group, Япония)',
+    tier: 'lbma', status: 'confirmed',
+    site: 'metalor.com', phone: '+852 2521 4131',
+    note: 'Работает в Гонконге с 2007 года (приобрёл завод у Johnson Matthey). В марте 2023 года докупил второй refining site у Wing Fung Precious Metals — расширение мощностей.'
+  },
+  {
+    name: 'AC Precious Metals Refinery', area: 'Guardforce Centre, Хун-Хом, Коулун',
+    coords: [22.3111, 114.1908], capacity: '~50 т/год (заявлено)',
+    accred: 'CGSE Bullion Group',
+    owner: 'New Times Energy Corp (HKSE: 0166)',
+    tier: 'cgse', status: 'confirmed',
+    site: 'ac-refinery.com', phone: '+852 2811 7530',
+    note: 'Адрес: Suite 506, Guardforce Centre, 3 Hok Yuen Street East. Запущен в 2021, плавильня (10 000 кв. футов) — в 2023 году. Operational management — Cheung\'s Gold Traders (CGTL, в том же здании, Unit 507). Семейный альянс братьев Cheung; один из братьев — президент CGSE.'
+  }
+];
+
+const minters = [
+  {
+    name: "Cheung's Gold Traders (CGTL)", area: 'Guardforce Centre, Хун-Хом, Коулун',
+    coords: [22.3072, 114.1872], member: 'CGSE #108 · член SGE',
+    bars: '1 кг · стандарт CGSE Good Delivery',
+    owner: 'Семья Cheung (Хейворд Чэн — президент CGSE)',
+    tier: 'major', status: 'confirmed',
+    site: 'cpmbullion.com', phone: '+852 2333 9928',
+    note: 'Адрес: Unit 507, 5/F., Guardforce Centre, 3 Hok Yuen Street East. Аккредитация рефайнера CGSE с 1997, но физический аффинаж сейчас идёт через аффилированную ACPMR (в том же здании, Suite 506). Сам Cheung\'s — крупный bullion trader и authorised minter, с лицензией монетного двора. В ноябре 2024 запущена дочка CPM Commodities в Dubai DMCC.'
+  },
+  {
+    name: 'Wing Fung Jeweller International', area: 'Сентрал, остров Гонконг',
+    coords: [22.2858, 114.1525], member: 'CGSE #34',
+    bars: 'CGSE Good Delivery (через bar minting)',
+    owner: 'Wing Fung Financial Group',
+    tier: 'major', status: 'confirmed',
+    site: 'wfgold.com',
+    note: 'Топ-3 в HK по обороту физического металла, CGSE #34. Плавильный комплекс продан Metalor в марте 2023 (подтверждено официальным пресс-релизом Metalor от 31 марта 2023) — сейчас компания работает как bullion dealer и authorised bar minter, без собственного refining-site.'
+  },
+  { name: 'Kaiser Precious Metals', area: 'Shun Tak Centre, Сентрал', coords: [22.2882, 114.1518], member: 'CGSE #4', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Член CGSE Bullion Group, authorised bar minter. Производит слитки из уже очищенного металла.' },
+  { name: 'Po Sang Financial Investment Services', area: 'BOC Tower, Сентрал', coords: [22.2791, 114.1614], member: 'CGSE #5', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', site: 'posang.com.hk', note: 'Подразделение Bank of China по торговле драгметаллами. Минтер слитков по CGSE-стандарту.' },
+  { name: 'Marigold International Bullion Dealers', area: 'Квун-Тонг, Коулун', coords: [22.3108, 114.2210], member: 'CGSE #23', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Член CGSE Bullion Group, authorised bar minter.' },
+  { name: 'King Fook Gold & Jewellery', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2842, 114.1570], member: 'CGSE #58', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', site: 'kingfook.com', note: 'Семейный ювелирный и bullion-бизнес (HKSE: 280). Authorised bar minter CGSE.' },
+  { name: 'Wong Sha Co', area: 'Джордан, Коулун', coords: [22.3066, 114.1700], member: 'CGSE #61', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Традиционный bullion dealer / authorised bar minter.' },
+  { name: 'Lee Cheong Gold Dealers', area: 'Wing On House, Сентрал', coords: [22.2840, 114.1580], member: 'CGSE #98', bars: 'только мелкие слитки · чистота 99%', tier: 'local', status: 'confirmed', note: 'Один из старейших золотых дилеров Гонконга. Authorised bar minter.' },
+  { name: 'First Asia Merchants Bullion', area: 'Ванчай', coords: [22.2780, 114.1735], member: 'CGSE #114', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Tai Fung Goldsmith & Refinery', area: 'Адмиралти', coords: [22.2810, 114.1640], member: 'CGSE #132', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Несмотря на слово "Refinery" в названии, по статусу CGSE — bar minter / dealer, не полноценный аффинажный завод.' },
+  { name: 'WZ Gold Group', area: 'Nina Tower, Цуэн-Ван, Новые территории', coords: [22.3700, 114.1180], member: 'CGSE #141', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Acetop Precious Metals', area: 'Цим-Ша-Цуй, Коулун', coords: [22.2980, 114.1690], member: 'CGSE #145', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Sun Yip Hong Gold Dealers', area: 'Хун-Хом, Коулун', coords: [22.3055, 114.1858], member: 'CGSE #152', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Upbest Bullion Company', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2865, 114.1505], member: 'CGSE #216', bars: '1 кг золото (99,99%) · 15 кг серебро', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter. Работает также с серебром.' }
+];
+
+const vaults = [
+  { name: 'Хранилище драгметаллов аэропорта (HKIA)', area: 'Чек Лап Кок, аэропорт', coords: [22.3082, 113.9185], operator: 'Hong Kong Airport Authority', capacity: 'расширение до 1000 т', type: 'Таможенный склад при аэропорте', status: 'confirmed', site: 'hongkongairport.com', note: 'Открыт в 2009. Главный перевалочный узел для импорта драгметаллов в КНР. Прямой доступ к грузовым линиям аэропорта. Расширение объявлено в Policy Address 2024.' },
+  { name: 'Гонконгское хранилище SGE', area: 'Bank of China (HK)', coords: [22.2795, 114.1616], operator: 'Bank of China (HK) Ltd', capacity: 'публично не раскрыто', type: 'Сертифицированное хранилище SGE International', status: 'confirmed', site: 'bochk.com', note: 'Открыт 26 июня 2025. Первое офшорное хранилище SGE. Контракты iPAu99.99HK и iPAu99.5HK с расчётами в юанях. Хранение бесплатно до конца 2025 года.' },
+  { name: "Хранилище Brink's в Гонконге", area: 'ATL Logistics Centre, Кваи-Чун', coords: [22.3185, 114.1175], operator: "Brink's Hong Kong", capacity: 'институциональный масштаб', type: 'Частное хранилище слитков', status: 'confirmed', site: 'hk.brinks.com', phone: '+852 2419 9222', note: 'Подтверждённый адрес: Unit 1022W, 1/F, ATL Logistics Centre AC, Kwai Chung Container Terminal, Berth No.3. CME-approved vault для контрактов kilo gold с 2015. Через него прошло 1100+ тонн золота за 2015-2016.' },
+  { name: 'Хранилище Loomis в Гонконге', area: 'Goodman Global Gateway, Цуэн-Ван', coords: [22.3710, 114.1100], operator: 'Loomis International (Securitas AB)', capacity: 'институциональный масштаб', type: 'Таможенное хранение', status: 'confirmed', site: 'loomisinternational.com', note: 'Подтверждённый адрес: Unit 701, Goodman Global Gateway, 168 Yeung Uk Road, Tsuen Wan. Одно из 4 глобальных хранилищ Loomis International (Цюрих · Гонконг · Дублин · Лондон). Партнёрство с GoldCore.' },
+  { name: 'Malca-Amit HKIA Vault', area: 'Airport Freight Forwarding Centre, Чек Лап Кок', coords: [22.3050, 113.9240], operator: 'Malca-Amit Group', capacity: '24 339 кв. футов · 5 vault-секций', type: 'Хранилище возле аэропорта', status: 'confirmed', site: 'malca-amit.com', note: 'Подтверждённый адрес: Unit G30-G31, Airport Freight Forwarding Centre, 2 Chun Wan Road, Chek Lap Kok. Построено в 2012 (264 тонны стали). 5 отдельных vault\'ов: общий, алмазный, банковский, fine art и др.' },
+  { name: 'Хранилище SF Express', area: 'Возле HKIA', coords: [22.3120, 113.9290], operator: 'SF Holding (S.F. Express)', capacity: '50–100 т (планируется)', type: 'Таможенный склад курьерской группы', status: 'planned', site: 'sf-express.com', note: 'Объявлено открытие — октябрь 2026 (по данным Bloomberg, май 2026). SF — SGE-сертифицированный логист, но не член LBMA. Сигнал: интеграция курьерской логистики с custody.' },
+  { name: 'Цяньхайское таможенное хранилище CGSE', area: 'СЭЗ Цяньхай, Шэньчжэнь', coords: [22.5235, 113.8915], operator: 'CGSE + ICBC (совм. предприятие)', capacity: '1500 т (заявлено)', type: 'Трансграничный таможенный склад', status: 'verify', site: 'cgse.com.hk', note: 'Анонсирован в 2014, обещали запуск в 2017 году, инвестиции 2 млрд HKD. По состоянию на конец 2024 года — всё ещё на стадии обсуждения (источник: SBMA). Проект буксует 10+ лет, текущий operational статус не подтверждён.' },
+  { name: 'Шэньчжэньское хранилище SGE', area: 'Шэньчжэнь (материковая КНР)', coords: [22.5470, 114.0578], operator: 'SGEI + ICBC', capacity: 'не раскрыто', type: 'Сертифицированное международное хранилище SGE', status: 'confirmed', site: 'en.sge.com.cn', note: 'Открыто в 2019. Поддерживает физпоставки по международным контрактам SGEI. Формально часть международного блока Shanghai Gold Exchange. Уже материковая КНР, не Гонконг.' }
+];
+
+const exchanges = [
+  {
+    name: 'CGSE — Chinese Gold and Silver Exchange Society',
+    area: 'Gold & Silver Commercial Building, 12-18 Mercer Street, Шеун-Ван',
+    coords: [22.2868, 114.1495],
+    operator: 'CGSE (биржа)',
+    type: 'Биржа физического золота, осн. 1910',
+    status: 'confirmed',
+    site: 'cgse.com.hk',
+    note: 'Единственная официальная биржа физического золота в Гонконге. 171 корпоративный член. Контракты в гонконгских долларах, юанях и долларах США (Loco London). Ключевой инструмент — Renminbi Kilobar, первый офшорный золотой контракт в юанях.'
+  }
+];
+
+const QIANHAI_BOUNDARY = [
+  [22.5603, 113.8609],
+  [22.5777, 113.8815],
+  [22.5531, 113.9056],
+  [22.5256, 113.9052],
+  [22.5141, 113.8947],
+  [22.4999, 113.8851],
+  [22.4954, 113.8705],
+  [22.4840, 113.8750],
+  [22.4818, 113.8690],
+  [22.5015, 113.8621],
+  [22.5027, 113.8657],
+  [22.5156, 113.8616],
+  [22.5248, 113.8578],
+  [22.5543, 113.8487],
+  [22.5731, 113.8348],
+  [22.5758, 113.8395]
+];
+
+const HENGQIN_BOUNDARY = [
+  [22.1553, 113.5416],
+  [22.1458, 113.5499],
+  [22.1165, 113.5475],
+  [22.1000, 113.5471],
+  [22.0936, 113.5561],
+  [22.0866, 113.5564],
+  [22.0799, 113.5567],
+  [22.0748, 113.5482],
+  [22.0818, 113.5276],
+  [22.0755, 113.5159],
+  [22.0605, 113.5028],
+  [22.0596, 113.4898],
+  [22.0926, 113.4678],
+  [22.1741, 113.4290],
+  [22.1512, 113.4646],
+  [22.1493, 113.4743],
+  [22.1553, 113.4953],
+  [22.1593, 113.5082],
+  [22.1645, 113.5174],
+  [22.1702, 113.5297],
+  [22.1706, 113.5316],
+  [22.1610, 113.5372]
+];
+
+const zones = [
+  {
+    name: 'Hong Kong SAR',
+    type: 'polygon',
+    coords: HK_SAR_BOUNDARY,
+    boundaryKey: 'HK_SAR_BOUNDARY',
+    infoCoords: [22.500, 114.360],
+    color: '#B8975A',
+    typeLabel: 'Свободный порт · отдельная таможня',
+    status: 'confirmed',
+    note: 'Вся территория Гонконга (остров Гонконг, Коулун, Новые территории, остров Лантау и 260+ малых островов) работает как единый свободный порт: 0% импортной пошлины, нет НДС, отдельная от КНР таможенная территория. Регулятор драгметаллов — Customs &amp; Excise (режим DPMS с апреля 2023).'
+  },
+  {
+    name: 'СЭЗ Цяньхай',
+    type: 'polygon',
+    coords: QIANHAI_BOUNDARY,
+    boundaryKey: 'QIANHAI_BOUNDARY',
+    infoCoords: [22.560, 113.860],
+    color: '#4A8B89',
+    typeLabel: 'Пилотная свободная зона · Шэньчжэнь',
+    status: 'confirmed',
+    note: 'Пилотная свободная экономическая зона с 2010 года, мост между Гонконгом и материком. Исторически (с 2014) — точка регистрации 68 гонконгских золотых трейдеров; центр программы Shenzhen–HK Gold Connect (с 2017, 70 гонконгских дилеров).'
+  },
+  {
+    name: 'Зона сотрудничества Хэнцинь',
+    type: 'polygon',
+    coords: HENGQIN_BOUNDARY,
+    boundaryKey: 'HENGQIN_BOUNDARY',
+    infoCoords: [22.1100, 113.5050],
+    color: '#5F7372',
+    typeLabel: 'Гуандун–Макао · контекстная зона',
+    status: 'confirmed',
+    note: 'Часть Гуандунской пилотной СЭЗ, ориентирована на интеграцию с Макао. Для драгметаллов второстепенна — основная специализация: услуги, туризм, R&amp;D. Gold-операций не зафиксировано.'
+  }
+];
+
+/* ─────────── MAP INIT ─────────── */
+const map = L.map('map', {
+  center: [22.45, 113.95],
+  zoom: 10,
+  minZoom: 9,
+  maxZoom: 16,
+  zoomControl: true,
+  attributionControl: true
+});
+
+const tileLayers = {
+  dark: {
+    base: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap · CartoDB', subdomains: 'abcd', maxZoom: 19
+    }),
+    labels: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+      attribution: '', subdomains: 'abcd', maxZoom: 19, pane: 'overlayPane'
+    })
+  },
+  light: {
+    base: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap · CartoDB', subdomains: 'abcd', maxZoom: 19
+    }),
+    labels: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+      attribution: '', subdomains: 'abcd', maxZoom: 19, pane: 'overlayPane'
+    })
+  }
+};
+
+function setMapTheme(theme) {
+  const remove = theme === 'dark' ? 'light' : 'dark';
+  if (map.hasLayer(tileLayers[remove].base)) map.removeLayer(tileLayers[remove].base);
+  if (map.hasLayer(tileLayers[remove].labels)) map.removeLayer(tileLayers[remove].labels);
+  tileLayers[theme].base.addTo(map);
+  tileLayers[theme].labels.addTo(map);
+}
+
+/* ─────────── MARKER ICONS ─────────── */
+function refineryIcon(tier) {
+  const s = tier === 'lbma' ? 24 : 18;
+  const color = tier === 'lbma' ? 'var(--large)' : '#B5664A';
+  return L.divIcon({
+    className: '',
+    html: `<div class="marker-refiner" style="width:${s}px;height:${s}px;background:${color};border-width:2px;"></div>`,
+    iconSize: [s, s], iconAnchor: [s/2, s/2]
+  });
+}
+function minterIcon(tier) {
+  const s = tier === 'major' ? 14 : 10;
+  const color = tier === 'major' ? 'var(--medium)' : 'var(--small)';
+  const border = tier === 'major' ? 2 : 1;
+  return L.divIcon({
+    className: '',
+    html: `<div class="marker-refiner" style="width:${s}px;height:${s}px;background:${color};border-width:${border}px;"></div>`,
+    iconSize: [s, s], iconAnchor: [s/2, s/2]
+  });
+}
+const vaultIcon = L.divIcon({ className: '', html: '<div class="marker-vault"></div>', iconSize: [13, 13], iconAnchor: [6.5, 6.5] });
+const exchangeIcon = L.divIcon({ className: '', html: '<div class="marker-exchange"></div>', iconSize: [13, 13], iconAnchor: [6.5, 6.5] });
+
+/* ─────────── GLOSSARY + INLINE TOOLTIPS ─────────── */
+const GLOSSARY = {
+  'LBMA Good Delivery': 'London Bullion Market Association — высший международный стандарт качества для слитков (400 oz и 1 кг). Базовый референс для bullion banks.',
+  'LBMA': 'London Bullion Market Association — главный мировой стандарт качества золотых слитков.',
+  'CGSE Good Delivery': 'Стандарт CGSE для слитков, допущенных к физпоставке на бирже Гонконга.',
+  'CGSE Bullion Group': 'Участники CGSE с правом аффинажа и собственного клейма на слитках.',
+  'Bullion Group': 'Категория членов CGSE с правом аффинажа и физпоставки.',
+  'CGSE': 'Chinese Gold & Silver Exchange Society — биржа золота Гонконга, основана в 1910 году. Единственная биржа физического золота в HK.',
+  'DPMS Cat. A': 'Регистрация HK Customs для дилеров драгметаллов без cash-операций (с 1 апреля 2023).',
+  'DPMS Cat. B': 'Регистрация HK Customs для дилеров с cash-операциями свыше HK$120 000 (требует AML-проверки).',
+  'DPMS': 'Dealer in Precious Metals and Stones — реестр HK Customs & Excise для всех дилеров драгметаллов с 2023 года.',
+  'SGE International': 'Международный совет SGE — для иностранных участников с физпоставкой через офшорные хранилища.',
+  'SGEI': 'SGE International — международный блок Shanghai Gold Exchange для зарубежных участников.',
+  'SGE': 'Shanghai Gold Exchange — крупнейшая биржа физического золота, создана Народным банком Китая в 2002 году.',
+  'iPAu99.99HK': 'SGE-контракт на золото 99,99‰ с физпоставкой в HK vault (расчёт в юанях). Запущен 26 июня 2025.',
+  'iPAu99.5HK': 'SGE-контракт на золото 99,5‰ с физпоставкой в HK vault (расчёт в юанях).',
+  'Authorised bar minter': 'Член CGSE с лицензией на штамповку слитков под собственным клеймом по CGSE-стандарту.',
+  'Loco London': 'Стандартный термин: золото, физически поставляемое в лондонские хранилища.',
+  'PBoC': 'People\'s Bank of China — Народный банк Китая, регулятор золотого рынка КНР.',
+  'BoCHK': 'Bank of China (Hong Kong) Limited — оператор SGE-хранилища в HK.',
+  'ICBC': 'Industrial and Commercial Bank of China — оператор SGE Shenzhen vault, крупнейший mainland-банк.',
+  'AAHK': 'Airport Authority Hong Kong — оператор аэропорта HKIA, владелец Precious Metals Depository.',
+  'HKIA': 'Hong Kong International Airport — главный транзитный узел для импорта драгметаллов в КНР.',
+  'фрипорт': 'Свободный порт — территория с льготным таможенным режимом, без пошлин на импорт/экспорт.',
+  'DMCC': 'Dubai Multi Commodities Centre — свободная экономическая зона Дубая для торговли биржевыми товарами.',
+  'FTZ': 'Free-Trade Zone — свободная экономическая зона с льготным таможенным режимом.',
+  'CGSE Accredited Refiner': 'Член CGSE с правом полного аффинажа драгметаллов и выпуском Good Delivery слитков.',
+  'Accredited Refiner': 'Аккредитованный аффинажный завод — имеет право выпускать слитки Good Delivery стандарта.'
+};
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function wrapTerms(text) {
+  if (!text) return '';
+  // Sort by length descending so multi-word terms match before single-word ones
+  const entries = Object.entries(GLOSSARY).sort((a, b) => b[0].length - a[0].length);
+  let result = String(text);
+  const placeholders = [];
+
+  for (const [term, tip] of entries) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Boundary: not preceded or followed by a letter/digit (Latin or Cyrillic)
+    const regex = new RegExp('(?<![A-Za-zА-Яа-яЁё0-9])' + escaped + '(?![A-Za-zА-Яа-яЁё0-9])', 'g');
+    result = result.replace(regex, (match) => {
+      const idx = placeholders.length;
+      placeholders.push({ match, tip });
+      return '\u0001P_' + idx + '\u0001';
+    });
+  }
+
+  return result.replace(/\u0001P_(\d+)\u0001/g, (_, idx) => {
+    const { match, tip } = placeholders[parseInt(idx, 10)];
+    return '<span class="term" tabindex="0" data-tip="' + escapeAttr(tip) + '">' + match + '</span>';
+  });
+}
+
+/* ─────────── STATUS RENDER ─────────── */
+const statusLabels = {
+  confirmed: 'Подтверждено',
+  likely: 'Вероятно',
+  verify: 'Требует проверки',
+  planned: 'Планируется'
+};
+function statusBadge(status) {
+  if (!status) return '';
+  return `<div><span class="popup-status ${status}">${statusLabels[status] || status}</span></div>`;
+}
+
+/* ─────────── POPUP HELPERS ─────────── */
+function contactsBlock(item) {
+  const parts = [];
+  // Google Maps — search by organization name + area, opens the actual listing if registered
+  if (item.coords) {
+    const queryText = (item.name + ' ' + (item.area || '')).trim();
+    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryText)}`;
+    parts.push(`<a href="${gmapsUrl}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z"/><circle cx="12" cy="10" r="3"/></svg>Найти в Google Maps</a>`);
+  }
+  if (item.site) {
+    const url = item.site.startsWith('http') ? item.site : 'https://' + item.site;
+    parts.push(`<a href="${url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>${item.site}</a>`);
+  }
+  if (item.phone) {
+    parts.push(`<a href="tel:${item.phone.replace(/\s/g,'')}"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>${item.phone}</a>`);
+  }
+  if (item.email) {
+    parts.push(`<a href="mailto:${item.email}"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>${item.email}</a>`);
+  }
+  return parts.length ? `<div class="popup-contacts">${parts.join('')}</div>` : '';
+}
+
+function accredBadges(item) {
+  if (!item.accred) return '';
+  const badges = [];
+  const a = item.accred;
+  if (/LBMA Good Delivery/i.test(a)) {
+    badges.push('<span class="accred-badge lbma">LBMA</span>');
+    badges.push('<span class="accred-badge good-delivery">Good Delivery</span>');
+  } else if (/LBMA/i.test(a)) {
+    badges.push('<span class="accred-badge lbma">LBMA</span>');
+  }
+  if (/CGSE Bullion Group/i.test(a)) {
+    badges.push('<span class="accred-badge cgse">CGSE Bullion</span>');
+  } else if (/\bCGSE\b/i.test(a)) {
+    badges.push('<span class="accred-badge cgse">CGSE</span>');
+  }
+  if (/COMEX|CME/i.test(a)) badges.push('<span class="accred-badge comex">COMEX</span>');
+  if (/DMCC/i.test(a)) badges.push('<span class="accred-badge dmcc">DMCC</span>');
+  return badges.length ? `<div class="accred-badges">${badges.join('')}</div>` : '';
+}
+
+/* ─────────── POPUP BUILDERS ─────────── */
+function popupRefinery(r) {
+  const cat = r.tier === 'lbma' ? 'Аффинажный завод · LBMA Good Delivery' : 'Аффинажный завод · CGSE';
+  return `
+    <div class="popup-cat large">${wrapTerms(cat)}</div>
+    <div class="popup-title">${r.name}</div>
+    <div class="popup-sub">${r.area}</div>
+    ${accredBadges(r)}
+    <div class="popup-row"><span>Мощность</span><span>${r.capacity}</span></div>
+    <div class="popup-row"><span>Владелец</span><span>${r.owner}</span></div>
+    <div class="popup-note">${wrapTerms(r.note)}</div>
+    ${statusBadge(r.status)}
+    ${contactsBlock(r)}`;
+}
+function popupMinter(m) {
+  const cat = m.tier === 'major' ? 'Authorised bar minter · крупный' : 'Authorised bar minter · локальный';
+  const ownerRow = m.owner ? `<div class="popup-row"><span>Владелец</span><span>${m.owner}</span></div>` : '';
+  return `
+    <div class="popup-cat medium">${wrapTerms(cat)}</div>
+    <div class="popup-title">${m.name}</div>
+    <div class="popup-sub">${m.area}</div>
+    <div class="popup-row"><span>Аккредитация</span><span>${wrapTerms(m.member)}</span></div>
+    <div class="popup-row"><span>Слитки</span><span>${wrapTerms(m.bars)}</span></div>
+    ${ownerRow}
+    <div class="popup-note">${wrapTerms(m.note)}</div>
+    ${statusBadge(m.status)}
+    ${contactsBlock(m)}`;
+}
+function popupVault(v) {
+  return `
+    <div class="popup-cat vault">${wrapTerms(v.type)}</div>
+    <div class="popup-title">${v.name}</div>
+    <div class="popup-sub">${v.area}</div>
+    <div class="popup-row"><span>Оператор</span><span>${wrapTerms(v.operator)}</span></div>
+    <div class="popup-row"><span>Ёмкость</span><span>${v.capacity}</span></div>
+    <div class="popup-note">${wrapTerms(v.note)}</div>
+    ${statusBadge(v.status)}
+    ${contactsBlock(v)}`;
+}
+function popupExchange(e) {
+  return `
+    <div class="popup-cat medium">${wrapTerms(e.type)}</div>
+    <div class="popup-title">${e.name}</div>
+    <div class="popup-sub">${e.area}</div>
+    <div class="popup-row"><span>Оператор</span><span>${wrapTerms(e.operator)}</span></div>
+    <div class="popup-note">${wrapTerms(e.note)}</div>
+    ${statusBadge(e.status)}
+    ${contactsBlock(e)}`;
+}
+function popupZone(z) {
+  return `
+    <div class="popup-cat zone">${wrapTerms(z.typeLabel)}</div>
+    <div class="popup-title">${z.name}</div>
+    <div class="popup-note" style="border-top:none;padding-top:6px;margin-top:0;">${wrapTerms(z.note)}</div>
+    ${statusBadge(z.status)}`;
+}
+
+/* ─────────── PLACE MARKERS (с поименным учётом) ─────────── */
+// markersByLayer: { [layerKey]: Array<{ id, name, sub, marker, shape? }> }
+const markersByLayer = {
+  refinery: [],
+  minter: [],
+  vault: [],
+  exchange: [],
+  zone: []
+};
+
+refineries.forEach((r, i) => {
+  const m = L.marker(r.coords, { icon: refineryIcon(r.tier) })
+    .bindPopup(popupRefinery(r))
+    .bindTooltip(r.name, { direction: 'top', offset: [0, -10] });
+  markersByLayer.refinery.push({
+    id: 'refinery-' + i, name: r.name,
+    sub: r.tier === 'lbma' ? 'LBMA' : 'CGSE',
+    marker: m
+  });
+});
+
+minters.forEach((m, i) => {
+  const mk = L.marker(m.coords, { icon: minterIcon(m.tier) })
+    .bindPopup(popupMinter(m))
+    .bindTooltip(m.name, { direction: 'top', offset: [0, -6] });
+  markersByLayer.minter.push({
+    id: 'minter-' + i, name: m.name,
+    sub: (m.member || '').replace('CGSE ', '').split(' · ')[0],
+    marker: mk
+  });
+});
+
+vaults.forEach((v, i) => {
+  const mk = L.marker(v.coords, { icon: vaultIcon })
+    .bindPopup(popupVault(v))
+    .bindTooltip(v.name, { direction: 'top', offset: [0, -6] });
+  markersByLayer.vault.push({
+    id: 'vault-' + i, name: v.name,
+    sub: v.status === 'planned' ? 'планируется' : (v.status === 'verify' ? 'к проверке' : ''),
+    marker: mk
+  });
+});
+
+exchanges.forEach((e, i) => {
+  const mk = L.marker(e.coords, { icon: exchangeIcon })
+    .bindPopup(popupExchange(e))
+    .bindTooltip(e.name, { direction: 'top', offset: [0, -6] });
+  markersByLayer.exchange.push({
+    id: 'exchange-' + i, name: 'CGSE · Биржа золота HK',
+    sub: 'осн. 1910',
+    marker: mk
+  });
+});
+
+/* Registry for marker position editing (?edit) */
+const editableMarkers = [];
+[
+  { array: refineries, groupVar: 'refineries' },
+  { array: minters,    groupVar: 'minters' },
+  { array: vaults,     groupVar: 'vaults' },
+  { array: exchanges,  groupVar: 'exchanges' }
+].forEach(({ array, groupVar }) => {
+  array.forEach((item, idx) => {
+    const entry = markersByLayer[groupVar === 'refineries' ? 'refinery'
+                                : groupVar === 'minters' ? 'minter'
+                                : groupVar === 'vaults' ? 'vault'
+                                : 'exchange'][idx];
+    if (!entry) return;
+    editableMarkers.push({
+      name: item.name,
+      groupVar,
+      arrayIndex: idx,
+      marker: entry.marker,
+      originalCoords: [item.coords[0], item.coords[1]],
+      dataItem: item
+    });
+  });
+});
+
+const infoIcon = L.divIcon({
+  className: '',
+  html: '<div class="marker-info">i</div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11]
+});
+
+const zonePolygons = {};  // boundaryKey → polygon layer
+
+zones.forEach((z, i) => {
+  let shape;
+  if (z.type === 'polygon') {
+    shape = L.polygon(z.coords, {
+      color: z.color, weight: 1.5, opacity: 0.85,
+      fillColor: z.color, fillOpacity: 0.05, dashArray: '6, 6',
+      interactive: false
+    });
+    if (z.boundaryKey) zonePolygons[z.boundaryKey] = { shape, zone: z };
+  } else {
+    shape = L.circle(z.center, {
+      radius: z.radius, color: z.color, weight: 1.5, opacity: 0.75,
+      fillColor: z.color, fillOpacity: 0.06, dashArray: '6, 6',
+      interactive: false
+    });
+  }
+  const infoMarker = L.marker(z.infoCoords, { icon: infoIcon })
+    .bindPopup(popupZone(z))
+    .bindTooltip(z.name, { direction: 'top', offset: [0, -12] });
+  markersByLayer.zone.push({
+    id: 'zone-' + i, name: z.name, sub: '',
+    marker: infoMarker, shape: shape
+  });
+});
+
+// Initial: add all to map
+function addAllToMap() {
+  Object.keys(markersByLayer).forEach(key => {
+    markersByLayer[key].forEach(item => {
+      if (!map.hasLayer(item.marker)) item.marker.addTo(map);
+      if (item.shape && !map.hasLayer(item.shape)) item.shape.addTo(map);
+    });
+  });
+}
+addAllToMap();
+
+/* ─────────── LEGEND: expandable children + handlers ─────────── */
+function buildLegendChildren() {
+  Object.keys(markersByLayer).forEach(key => {
+    const container = document.querySelector(`.legend-children[data-children="${key}"]`);
+    if (!container) return;
+    markersByLayer[key].forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'legend-child';
+      row.dataset.itemId = item.id;
+      row.dataset.layer = key;
+      row.innerHTML = `
+        <span class="legend-child-check"></span>
+        <span class="legend-child-name">${item.name}</span>
+        ${item.sub ? `<span class="legend-child-sub">${item.sub}</span>` : ''}
+      `;
+      container.appendChild(row);
+    });
+  });
+}
+buildLegendChildren();
+
+// State of each individual marker visibility
+const itemState = {};
+Object.keys(markersByLayer).forEach(key => {
+  markersByLayer[key].forEach(item => { itemState[item.id] = true; });
+});
+
+function setItemVisibility(layerKey, itemId, visible) {
+  const item = markersByLayer[layerKey].find(x => x.id === itemId);
+  if (!item) return;
+  itemState[itemId] = visible;
+  if (visible) {
+    if (!map.hasLayer(item.marker)) item.marker.addTo(map);
+    if (item.shape && !map.hasLayer(item.shape)) item.shape.addTo(map);
+  } else {
+    if (map.hasLayer(item.marker)) map.removeLayer(item.marker);
+    if (item.shape && map.hasLayer(item.shape)) map.removeLayer(item.shape);
+  }
+  const row = document.querySelector(`.legend-child[data-item-id="${itemId}"]`);
+  if (row) row.classList.toggle('disabled', !visible);
+  syncLayerHeaderState(layerKey);
+}
+
+function syncLayerHeaderState(layerKey) {
+  const header = document.querySelector(`.legend-item[data-layer="${layerKey}"]`);
+  if (!header) return;
+  const items = markersByLayer[layerKey];
+  const anyVisible = items.some(it => itemState[it.id]);
+  header.classList.toggle('disabled', !anyVisible);
+}
+
+function setLayerVisibility(layerKey, visible) {
+  markersByLayer[layerKey].forEach(item => {
+    setItemVisibility(layerKey, item.id, visible);
+  });
+}
+
+// Header click = toggle expansion. Dot click = toggle entire layer.
+document.querySelectorAll('.legend-item').forEach(header => {
+  const layerKey = header.dataset.layer;
+  const dot = header.querySelector('.dot');
+  const children = document.querySelector(`.legend-children[data-children="${layerKey}"]`);
+
+  // Dot click = toggle entire layer (всегда)
+  dot.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const items = markersByLayer[layerKey];
+    const anyVisible = items.some(it => itemState[it.id]);
+    setLayerVisibility(layerKey, !anyVisible);
+  });
+
+  // Header click = expand/collapse (works for single-item too)
+  header.addEventListener('click', () => {
+    const isOpen = header.classList.toggle('expanded');
+    if (children) children.classList.toggle('open', isOpen);
+  });
+});
+
+// Individual child toggles
+document.querySelectorAll('.legend-child').forEach(row => {
+  row.addEventListener('click', () => {
+    const itemId = row.dataset.itemId;
+    const layer = row.dataset.layer;
+    setItemVisibility(layer, itemId, !itemState[itemId]);
+  });
+});
+
+/* ─────────── THEME TOGGLE ─────────── */
+const root = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+
+function applyTheme(theme) {
+  root.setAttribute('data-theme', theme);
+  setMapTheme(theme);
+  try { localStorage.setItem('areal_theme', theme); } catch(e) {}
+}
+
+let initialTheme = 'dark';
+try {
+  const stored = localStorage.getItem('areal_theme');
+  if (stored === 'light' || stored === 'dark') initialTheme = stored;
+} catch(e) {}
+applyTheme(initialTheme);
+
+themeToggle.addEventListener('click', () => {
+  const current = root.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+/* ─────────── BOUNDARY EDITOR (?edit URL flag) ─────────── */
+const EDIT_MODE_ENABLED = /[?&#]edit\b/.test(location.search + location.hash);
+
+if (EDIT_MODE_ENABLED) {
+  const EDITABLE_ZONES = [
+    { key: 'HK_SAR_BOUNDARY',  label: 'HK', boundary: HK_SAR_BOUNDARY },
+    { key: 'QIANHAI_BOUNDARY', label: 'Цяньхай', boundary: QIANHAI_BOUNDARY },
+    { key: 'HENGQIN_BOUNDARY', label: 'Хэнцинь', boundary: HENGQIN_BOUNDARY }
+  ];
+
+  let activeZone = null;
+  let vertexMarkers = [];
+  let markersEditing = false;  // separate mode flag for marker dragging
+
+  const EditControlPanel = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: function() {
+      const container = L.DomUtil.create('div');
+      container.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+      EDITABLE_ZONES.forEach(z => {
+        const btn = L.DomUtil.create('button', 'edit-control-btn', container);
+        btn.dataset.zoneKey = z.key;
+        btn.innerHTML = '✏️ ' + z.label;
+        btn.type = 'button';
+        L.DomEvent.disableClickPropagation(btn);
+        L.DomEvent.on(btn, 'click', () => toggleEdit(btn, z));
+      });
+      // Separator + markers edit button
+      const sep = L.DomUtil.create('div', '', container);
+      sep.style.cssText = 'height:1px;background:rgba(255,255,255,0.15);margin:4px 0;';
+      const markerBtn = L.DomUtil.create('button', 'edit-control-btn', container);
+      markerBtn.dataset.zoneKey = 'MARKERS';
+      markerBtn.innerHTML = '✏️ Маркеры';
+      markerBtn.type = 'button';
+      L.DomEvent.disableClickPropagation(markerBtn);
+      L.DomEvent.on(markerBtn, 'click', () => toggleMarkerEdit(markerBtn));
+      return container;
+    }
+  });
+  new EditControlPanel().addTo(map);
+
+  function resetAllButtonsExcept(exceptBtn) {
+    document.querySelectorAll('.edit-control-btn').forEach(b => {
+      if (b === exceptBtn) return;
+      const zk = b.dataset.zoneKey;
+      if (zk === 'MARKERS') {
+        b.innerHTML = '✏️ Маркеры';
+      } else {
+        const zi = EDITABLE_ZONES.find(z => z.key === zk);
+        if (zi) b.innerHTML = '✏️ ' + zi.label;
+      }
+      b.classList.remove('active');
+    });
+  }
+
+  function toggleEdit(btn, zoneInfo) {
+    // If currently editing markers, stop that mode silently first
+    if (markersEditing) stopMarkerEdit(true);
+
+    // If clicking on different zone while editing — stop current first (silent)
+    if (activeZone && activeZone.key !== zoneInfo.key) {
+      stopEdit(true);
+    }
+    if (activeZone && activeZone.key === zoneInfo.key) {
+      btn.innerHTML = '✏️ ' + zoneInfo.label;
+      btn.classList.remove('active');
+      stopEdit(false);
+      activeZone = null;
+    } else {
+      btn.innerHTML = '💾 Сохранить';
+      btn.classList.add('active');
+      resetAllButtonsExcept(btn);
+      activeZone = zoneInfo;
+      startEdit();
+    }
+  }
+
+  /* ────── MARKER EDIT MODE ────── */
+  function toggleMarkerEdit(btn) {
+    // If currently editing a zone, stop silently
+    if (activeZone) {
+      stopEdit(true);
+      activeZone = null;
+    }
+    if (markersEditing) {
+      btn.innerHTML = '✏️ Маркеры';
+      btn.classList.remove('active');
+      stopMarkerEdit(false);
+    } else {
+      btn.innerHTML = '💾 Сохранить';
+      btn.classList.add('active');
+      resetAllButtonsExcept(btn);
+      startMarkerEdit();
+    }
+  }
+
+  function startMarkerEdit() {
+    markersEditing = true;
+    document.body.classList.add('markers-editing');
+    editableMarkers.forEach(em => {
+      // Close any open popup, disable popup on click while editing
+      em.marker.closePopup();
+      if (em.marker.dragging) em.marker.dragging.enable();
+      em.marker.options.draggable = true;
+      // Suppress popup during drag
+      em.marker.on('dragstart', onMarkerDragStart);
+      em.marker.on('dragend', onMarkerDragEnd);
+    });
+  }
+
+  function onMarkerDragStart(e) {
+    // Temporarily unbind popup so click after drag doesn't open it
+    const target = e.target;
+    target._suppressPopup = true;
+  }
+
+  function onMarkerDragEnd(e) {
+    const target = e.target;
+    const pos = target.getLatLng();
+    const newLat = Math.round(pos.lat * 10000) / 10000;
+    const newLng = Math.round(pos.lng * 10000) / 10000;
+    // Find which item this marker belongs to
+    const em = editableMarkers.find(x => x.marker === target);
+    if (em) {
+      em.dataItem.coords = [newLat, newLng];
+    }
+    setTimeout(() => { target._suppressPopup = false; }, 200);
+  }
+
+  function stopMarkerEdit(silent) {
+    markersEditing = false;
+    document.body.classList.remove('markers-editing');
+    editableMarkers.forEach(em => {
+      if (em.marker.dragging) em.marker.dragging.disable();
+      em.marker.options.draggable = false;
+      em.marker.off('dragstart', onMarkerDragStart);
+      em.marker.off('dragend', onMarkerDragEnd);
+    });
+    if (!silent) showMarkerChangesModal();
+  }
+
+  function showMarkerChangesModal() {
+    const groupLabels = {
+      refineries: 'refineries',
+      minters: 'minters',
+      vaults: 'vaults',
+      exchanges: 'exchanges'
+    };
+    const changes = editableMarkers.filter(em => {
+      return em.dataItem.coords[0] !== em.originalCoords[0]
+          || em.dataItem.coords[1] !== em.originalCoords[1];
+    });
+
+    const bg = document.createElement('div');
+    bg.className = 'edit-modal-bg open';
+
+    if (changes.length === 0) {
+      bg.innerHTML = `
+        <div class="edit-modal" style="max-width:480px;">
+          <h3>Маркеры не изменены</h3>
+          <p>Координаты остались как были — ничего отправлять не нужно.</p>
+          <div class="edit-modal-actions">
+            <button class="edit-modal-btn primary" data-act="close">Ок</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bg);
+      bg.addEventListener('click', e => {
+        if (e.target === bg || e.target.dataset.act === 'close') bg.remove();
+      });
+      return;
+    }
+
+    const lines = changes.map(em => {
+      const [lat, lng] = em.dataItem.coords;
+      return `${em.name}\n  было:  [${em.originalCoords[0].toFixed(4)}, ${em.originalCoords[1].toFixed(4)}]\n  стало: [${lat.toFixed(4)}, ${lng.toFixed(4)}]`;
+    }).join('\n\n');
+
+    bg.innerHTML = `
+      <div class="edit-modal">
+        <h3>Изменено маркеров: ${changes.length}</h3>
+        <p>Скопируй и пришли мне — я внесу новые координаты в файл.</p>
+        <textarea readonly></textarea>
+        <div class="edit-modal-actions">
+          <button class="edit-modal-btn" data-act="close">Закрыть</button>
+          <button class="edit-modal-btn primary" data-act="copy">📋 Скопировать</button>
+        </div>
+      </div>`;
+    document.body.appendChild(bg);
+    const ta = bg.querySelector('textarea');
+    ta.value = lines;
+    ta.select();
+
+    bg.addEventListener('click', e => {
+      if (e.target === bg || e.target.dataset.act === 'close') bg.remove();
+      if (e.target.dataset.act === 'copy') {
+        ta.select();
+        navigator.clipboard.writeText(lines).then(() => {
+          e.target.innerHTML = '✓ Скопировано';
+          setTimeout(() => { e.target.innerHTML = '📋 Скопировать'; }, 1500);
+        }).catch(() => { document.execCommand('copy'); });
+      }
+    });
+  }
+
+  function getPolygon() {
+    return zonePolygons[activeZone.key].shape;
+  }
+
+  function startEdit() {
+    const boundary = activeZone.boundary;
+    const polygon = getPolygon();
+    boundary.forEach((coord, idx) => {
+      const m = L.marker(coord, {
+        draggable: true,
+        icon: L.divIcon({ className: 'edit-vertex', html: '', iconSize: [14, 14], iconAnchor: [7, 7] })
+      }).addTo(map);
+      m.vertexIndex = idx;
+
+      m.on('dragstart', (e) => { e.target.getElement().classList.add('dragging'); });
+      m.on('drag', (e) => {
+        const pos = e.target.getLatLng();
+        boundary[m.vertexIndex] = [
+          Math.round(pos.lat * 10000) / 10000,
+          Math.round(pos.lng * 10000) / 10000
+        ];
+        polygon.setLatLngs(boundary);
+      });
+      m.on('dragend', (e) => { e.target.getElement().classList.remove('dragging'); });
+
+      m.on('contextmenu', (e) => {
+        L.DomEvent.preventDefault(e.originalEvent);
+        if (boundary.length > 4) {
+          boundary.splice(m.vertexIndex, 1);
+          polygon.setLatLngs(boundary);
+          refreshVertexMarkers();
+        }
+      });
+      m.on('click', (e) => {
+        if ((e.originalEvent.shiftKey || e.originalEvent.altKey) && boundary.length > 4) {
+          boundary.splice(m.vertexIndex, 1);
+          polygon.setLatLngs(boundary);
+          refreshVertexMarkers();
+        }
+      });
+
+      vertexMarkers.push(m);
+    });
+
+    polygon.bringToFront();
+    map.on('dblclick', onMapDblClick);
+  }
+
+  function onMapDblClick(e) {
+    if (!activeZone) return;
+    const boundary = activeZone.boundary;
+    const polygon = getPolygon();
+    const clickLatLng = e.latlng;
+    let minDist = Infinity;
+    let insertIdx = 0;
+    for (let i = 0; i < boundary.length; i++) {
+      const a = L.latLng(boundary[i]);
+      const b = L.latLng(boundary[(i + 1) % boundary.length]);
+      const mid = L.latLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2);
+      const d = clickLatLng.distanceTo(mid);
+      if (d < minDist) {
+        minDist = d;
+        insertIdx = i + 1;
+      }
+    }
+    if (minDist < 5000) {
+      boundary.splice(insertIdx, 0, [
+        Math.round(clickLatLng.lat * 10000) / 10000,
+        Math.round(clickLatLng.lng * 10000) / 10000
+      ]);
+      polygon.setLatLngs(boundary);
+      refreshVertexMarkers();
+    }
+  }
+
+  function refreshVertexMarkers() {
+    vertexMarkers.forEach(m => m.remove());
+    vertexMarkers = [];
+    const boundary = activeZone.boundary;
+    const polygon = getPolygon();
+    boundary.forEach((coord, idx) => {
+      const m = L.marker(coord, {
+        draggable: true,
+        icon: L.divIcon({ className: 'edit-vertex', html: '', iconSize: [14, 14], iconAnchor: [7, 7] })
+      }).addTo(map);
+      m.vertexIndex = idx;
+      m.on('drag', (e) => {
+        const pos = e.target.getLatLng();
+        boundary[m.vertexIndex] = [
+          Math.round(pos.lat * 10000) / 10000,
+          Math.round(pos.lng * 10000) / 10000
+        ];
+        polygon.setLatLngs(boundary);
+      });
+      m.on('contextmenu', (e) => {
+        L.DomEvent.preventDefault(e.originalEvent);
+        if (boundary.length > 4) {
+          boundary.splice(m.vertexIndex, 1);
+          polygon.setLatLngs(boundary);
+          refreshVertexMarkers();
+        }
+      });
+      vertexMarkers.push(m);
+    });
+  }
+
+  function stopEdit(silent) {
+    vertexMarkers.forEach(m => m.remove());
+    vertexMarkers = [];
+    map.off('dblclick', onMapDblClick);
+    if (!silent && activeZone) showExportModal(activeZone);
+  }
+
+  function showExportModal(zoneInfo) {
+    const boundary = zoneInfo.boundary;
+    const formatted = boundary.map(([lat, lng]) =>
+      `  [${lat.toFixed(4)}, ${lng.toFixed(4)}]`
+    ).join(',\n');
+    const text = `const ${zoneInfo.key} = [\n${formatted}\n];`;
+
+    const bg = document.createElement('div');
+    bg.className = 'edit-modal-bg open';
+    bg.innerHTML = `
+      <div class="edit-modal">
+        <h3>Координаты ${zoneInfo.label} (${boundary.length} точек)</h3>
+        <p>Скопируй этот блок и пришли мне — я заменю в файле.</p>
+        <textarea readonly></textarea>
+        <div class="edit-modal-actions">
+          <button class="edit-modal-btn" data-act="close">Закрыть</button>
+          <button class="edit-modal-btn primary" data-act="copy">📋 Скопировать</button>
+        </div>
+      </div>`;
+    document.body.appendChild(bg);
+    const ta = bg.querySelector('textarea');
+    ta.value = text;
+    ta.select();
+
+    bg.addEventListener('click', (e) => {
+      if (e.target === bg || e.target.dataset.act === 'close') bg.remove();
+      if (e.target.dataset.act === 'copy') {
+        ta.select();
+        navigator.clipboard.writeText(text).then(() => {
+          e.target.innerHTML = '✓ Скопировано';
+          setTimeout(() => { e.target.innerHTML = '📋 Скопировать'; }, 1500);
+        }).catch(() => { document.execCommand('copy'); });
+      }
+    });
+  }
+
+  console.log('%c[Edit mode active]', 'color:#B8975A;font-weight:600',
+    '\nZONES: HK / Цяньхай / Хэнцинь — drag vertices, right-click to delete, double-click near edge to insert.\nMARKERS: drag any organization pin to reposition.\nClick "💾 Save" to export changes.');
+}
+</script>
+</body>
+</html>
