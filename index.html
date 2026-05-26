@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Рынок золота · Гонконг и регион · v48</title>
+<title>Рынок золота · Гонконг и регион · v50</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1000,6 +1000,7 @@ ul.refined li strong { color: var(--text); font-weight: 500; }
 .tbl td { color: var(--text-dim); }
 .tbl td strong { color: var(--text); font-weight: 500; }
 .tbl tr:hover td { color: var(--text); background: rgba(184, 151, 90, 0.03); }
+.tbl .mob-loc { display: none; }  /* mobile-only duplicate of locality column */
 :root[data-theme="light"] .tbl tr:hover td { background: rgba(139, 110, 47, 0.04); }
 
 .tag {
@@ -1049,12 +1050,77 @@ footer .sources span { color: var(--text-dim); }
   .meta-block { align-items: flex-start; }
   .meta { text-align: left; }
   .map-wrap { grid-template-columns: 1fr; }
-  .legend-panel { height: auto; }
+  .legend-panel {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 18px 20px;
+  }
   #map { height: 480px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .flow { grid-template-columns: 1fr; }
   .flow-step:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -6px; transform: translateX(50%); }
   footer { grid-template-columns: 1fr; }
+}
+
+/* ─────────── MOBILE-SPECIFIC TWEAKS (≤640px) ─────────── */
+@media (max-width: 640px) {
+  /* 1. Тема-тогл — компактный icon-only справа сверху */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 5000;
+    padding: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    opacity: 0.85;
+  }
+  .theme-toggle .label-dark,
+  .theme-toggle .label-light { display: none !important; }
+  .theme-toggle svg { width: 14px; height: 14px; }
+  .meta-block { display: none; }  /* убираем дублирующий контейнер тогла из masthead */
+
+  /* 2. Легенда — обрезать пустоту под текстом */
+  .legend-panel {
+    min-height: 0;
+    max-height: none;
+    padding: 18px 16px;
+  }
+
+  /* 3. Высоту карты — побольше, лучше fits контент */
+  #map { height: 56vh; min-height: 420px; }
+
+  /* 4. Long-word breaking: убираем разрывы букв в "к проверке" и подобных */
+  .legend-child-meta,
+  .legend-sub,
+  .legend-item-text,
+  .popup-row span,
+  .popup-cat {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    hyphens: none;
+  }
+  .legend-child-meta { white-space: nowrap; }
+
+  /* 5. Таблица фрипортов — без горизонтального скролла */
+  .tbl-wrap { overflow-x: visible; }
+  .tbl { font-size: 11.5px; table-layout: fixed; width: 100%; }
+  .tbl th, .tbl td {
+    padding: 10px 8px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .tbl th.col-loc, .tbl td.col-loc { display: none; }  /* скрываем столбец Локация */
+  .tbl td.col-name .mob-loc {
+    display: block;
+    color: var(--text-faint);
+    font-size: 10.5px;
+    font-weight: 400;
+    margin-top: 3px;
+    line-height: 1.35;
+  }
 }
 </style>
 </head>
@@ -1277,58 +1343,58 @@ footer .sources span { color: var(--text-dim); }
     <table class="tbl">
       <thead>
         <tr>
-          <th>Объект</th>
-          <th>Локация</th>
+          <th class="col-name">Объект</th>
+          <th class="col-loc">Локация</th>
           <th>Тип</th>
           <th>Что важно</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>Хранилище драгметаллов аэропорта Гонконга (HKIA)</strong></td>
-          <td>Аэропорт Гонконга, Чек Лап Кок</td>
+          <td class="col-name"><strong>Хранилище драгметаллов аэропорта Гонконга (HKIA)</strong><span class="mob-loc">Аэропорт Гонконга, Чек Лап Кок</span></td>
+          <td class="col-loc">Аэропорт Гонконга, Чек Лап Кок</td>
           <td>Таможенный склад при аэропорте</td>
           <td>Главный перевалочный пункт региона, через него проходит большая часть физических поставок. Расширение до <strong>1000 тонн</strong> по Policy Address 2024</td>
         </tr>
         <tr>
-          <td><strong>Гонконгское хранилище SGE</strong> <span class="tag new">НОВОЕ · июн 2025</span></td>
-          <td>Bank of China (HK)</td>
+          <td class="col-name"><strong>Гонконгское хранилище SGE</strong> <span class="tag new">НОВОЕ · июн 2025</span><span class="mob-loc">Bank of China (HK)</span></td>
+          <td class="col-loc">Bank of China (HK)</td>
           <td>Сертифицированное хранилище Шанхайской биржи золота</td>
           <td>Первое офшорное хранилище SGE за пределами материка. Поддерживает новые контракты <code>iPAu99.99HK</code> и <code>iPAu99.5HK</code>, расчёты в юанях. Хранение бесплатно до конца 2025 года</td>
         </tr>
         <tr>
-          <td><strong>Хранилище Brink's в Гонконге</strong></td>
-          <td>Цинъи / рядом с аэропортом</td>
+          <td class="col-name"><strong>Хранилище Brink's в Гонконге</strong><span class="mob-loc">Цинъи / рядом с аэропортом</span></td>
+          <td class="col-loc">Цинъи / рядом с аэропортом</td>
           <td>Частное хранилище слитков</td>
           <td>Часть глобальной сети Brink's. Институциональные и крупные частные клиенты. Часто используется как место поставки по контрактам CGSE</td>
         </tr>
         <tr>
-          <td><strong>Хранилище Loomis в Гонконге</strong></td>
-          <td>Коулун-Бэй</td>
+          <td class="col-name"><strong>Хранилище Loomis в Гонконге</strong><span class="mob-loc">Коулун-Бэй</span></td>
+          <td class="col-loc">Коулун-Бэй</td>
           <td>Частное хранилище слитков</td>
           <td>Одно из 4 глобальных хранилищ Loomis International (Цюрих, Гонконг, Дублин, Лондон). Таможенный режим хранения</td>
         </tr>
         <tr>
-          <td><strong>Malca-Amit / UltraVault HK</strong></td>
-          <td>Цим-Ша-Цуй / возле аэропорта</td>
+          <td class="col-name"><strong>Malca-Amit / UltraVault HK</strong><span class="mob-loc">Цим-Ша-Цуй / возле аэропорта</span></td>
+          <td class="col-loc">Цим-Ша-Цуй / возле аэропорта</td>
           <td>Хранилище в свободной зоне</td>
           <td>100% беспошлинный режим хранения. Сертификации CTPAT, AEO. Специализация — трансграничная логистика драгметаллов</td>
         </tr>
         <tr>
-          <td><strong>Хранилище SF Express</strong> <span class="tag new">НОВОЕ · окт 2026</span></td>
-          <td>Комплекс SF Holding возле аэропорта</td>
+          <td class="col-name"><strong>Хранилище SF Express</strong> <span class="tag new">НОВОЕ · окт 2026</span><span class="mob-loc">Комплекс SF Holding возле аэропорта</span></td>
+          <td class="col-loc">Комплекс SF Holding возле аэропорта</td>
           <td>Хранилище курьерской группы</td>
           <td>Новое хранилище курьерской группы SF (крупнейшая в КНР). Ёмкость 50–100 тонн. Сигнал: интеграция логистики и хранения металла</td>
         </tr>
         <tr>
-          <td><strong>Цяньхайское таможенное хранилище CGSE</strong></td>
-          <td>СЭЗ Цяньхай, Шэньчжэнь</td>
+          <td class="col-name"><strong>Цяньхайское таможенное хранилище CGSE</strong><span class="mob-loc">СЭЗ Цяньхай, Шэньчжэнь</span></td>
+          <td class="col-loc">СЭЗ Цяньхай, Шэньчжэнь</td>
           <td>Трансграничный таможенный склад</td>
           <td>Заявленные 1500 тонн ёмкости. Инициатива CGSE для соединения материковой добычи и шэньчжэньской переработки с международными участниками</td>
         </tr>
         <tr>
-          <td><strong>Шэньчжэньское хранилище SGE</strong></td>
-          <td>Шэньчжэнь</td>
+          <td class="col-name"><strong>Шэньчжэньское хранилище SGE</strong><span class="mob-loc">Шэньчжэнь</span></td>
+          <td class="col-loc">Шэньчжэнь</td>
           <td>Сертифицированное международное хранилище SGE</td>
           <td>Открыто в 2019 году совместно с ICBC. Поддерживает физические поставки по международным контрактам SGEI; формально часть «международной» части системы SGE</td>
         </tr>
@@ -1385,7 +1451,7 @@ footer .sources span { color: var(--text-dim); }
       <strong>ИСТОЧНИКИ</strong> · <span>Список LBMA Good Delivery · реестр аккредитованных аффинажеров CGSE · Customs &amp; Excise Гонконга (режим DPMS) · ответы Legislative Council по расширению PMS · объявления Shanghai Gold Exchange (sge.com.cn, июнь 2025) · BullionStar Gold University · Bloomberg / SCMP / Reuters · публичные материалы Heraeus, Metalor, AC Precious Metals</span>
     </div>
     <div>
-      <strong>v48</strong> · Брифинг
+      <strong>v50</strong> · Брифинг
     </div>
   </footer>
 
@@ -1637,9 +1703,10 @@ const zones = [
 ];
 
 /* ─────────── MAP INIT ─────────── */
+const _isNarrow = window.innerWidth <= 640;
 const map = L.map('map', {
-  center: [22.45, 113.95],
-  zoom: 10,
+  center: _isNarrow ? [22.40, 114.05] : [22.45, 113.95],
+  zoom: _isNarrow ? 9 : 10,
   minZoom: 9,
   maxZoom: 16,
   zoomControl: true,
