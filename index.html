@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AREAL · Гонконгский золотой хаб · v47</title>
+<title>Рынок золота · Гонконг и регион · v48</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1168,8 +1168,8 @@ footer .sources span { color: var(--text-dim); }
     </div>
 
     <div class="callout">
-      <div class="callout-label">Что это значит для AREAL</div>
-      <p>Гонконг — не «обход пошлин», а <span class="accent">промежуточное хранилище перед поставкой в КНР</span>. Металл лежит в HK без налогов сколько нужно — и заходит в материковый Китай порциями по мере открытия квот лицензированных банков. Российское золото можно ввезти, переплавить в HK-аффинаже (Heraeus, Metalor, ACPMR) и получить CGSE/LBMA-сертифицированный слиток — после этого он торгуется на бирже как локальный продукт, без западных санкций. Это и есть ценность HK-инфраструктуры.</p>
+      <div class="callout-label">Что это значит на практике</div>
+      <p>Гонконг — не «обход пошлин», а <span class="accent">промежуточное хранилище перед поставкой в КНР</span>. Металл лежит в HK без налогов сколько нужно — и заходит в материковый Китай порциями по мере открытия квот лицензированных банков. Иностранное золото можно ввезти, переплавить в HK-аффинаже (Heraeus, Metalor, ACPMR) и получить CGSE/LBMA-сертифицированный слиток — после этого он торгуется на бирже как локальный продукт, без западных санкций. Это и есть ценность HK-инфраструктуры.</p>
     </div>
 
     <div class="subsection-heading">
@@ -1189,7 +1189,7 @@ footer .sources span { color: var(--text-dim); }
         <div class="card-num">Зона · Хэнцинь</div>
         <div class="card-title">Зона глубокого сотрудничества Хэнцинь</div>
         <div class="card-body">
-          Часть Гуандунской пилотной СЭЗ, ориентирована на интеграцию с Макао. Для драгметаллов менее значима — основная специализация: услуги, туризм, инновации. На карте оставлена как контекстная зона; прямого аффинажного применения для AREAL здесь нет.
+          Часть Гуандунской пилотной СЭЗ, ориентирована на интеграцию с Макао. Для драгметаллов менее значима — основная специализация: услуги, туризм, инновации. На карте оставлена как контекстная зона; прямого аффинажного применения здесь нет.
         </div>
       </div>
       <div class="card">
@@ -1375,7 +1375,7 @@ footer .sources span { color: var(--text-dim); }
     </div>
 
     <div class="callout">
-      <div class="callout-label">Вывод для AREAL</div>
+      <div class="callout-label">Вывод</div>
       <p>Гонконг даёт <span class="accent">три параллельных канала сбыта</span>: (a) через LBMA-аффинажеров на глобальный рынок (Heraeus или Metalor), (b) через CGSE-локальные слитки на гонконгский и азиатский рынок, (c) через новое гонконгское хранилище SGE напрямую в расчёты юанями с материком без необходимости получать импортную лицензию КНР. Выбор канала определяет тип контрагента, ценообразование, валюту расчётов и нагрузку на compliance.</p>
     </div>
   </section>
@@ -1385,7 +1385,7 @@ footer .sources span { color: var(--text-dim); }
       <strong>ИСТОЧНИКИ</strong> · <span>Список LBMA Good Delivery · реестр аккредитованных аффинажеров CGSE · Customs &amp; Excise Гонконга (режим DPMS) · ответы Legislative Council по расширению PMS · объявления Shanghai Gold Exchange (sge.com.cn, июнь 2025) · BullionStar Gold University · Bloomberg / SCMP / Reuters · публичные материалы Heraeus, Metalor, AC Precious Metals</span>
     </div>
     <div>
-      <strong>v47</strong> · Брифинг
+      <strong>v48</strong> · Брифинг
     </div>
   </footer>
 
@@ -2083,12 +2083,12 @@ const themeToggle = document.getElementById('themeToggle');
 function applyTheme(theme) {
   root.setAttribute('data-theme', theme);
   setMapTheme(theme);
-  try { localStorage.setItem('areal_theme', theme); } catch(e) {}
+  try { localStorage.setItem('hk_gold_theme', theme); } catch(e) {}
 }
 
 let initialTheme = 'light';
 try {
-  const stored = localStorage.getItem('areal_theme');
+  const stored = localStorage.getItem('hk_gold_theme');
   if (stored === 'light' || stored === 'dark') initialTheme = stored;
 } catch(e) {}
 applyTheme(initialTheme);
