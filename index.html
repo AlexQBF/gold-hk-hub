@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Рынок золота · Гонконг и регион · v50</title>
+<title>Рынок золота · Гонконг и регион · v52</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1324,7 +1324,7 @@ footer .sources span { color: var(--text-dim); }
         <div class="card-body">
           <p>Это участники, которые имеют право штамповать слитки CGSE Good Delivery (1 кг, чистота 99,99%), но не имеют собственного производственного refining-site. Берут уже очищенный металл и превращают его в продукт со своим клеймом.</p>
           <p>Внутри 14 объектов есть градация: <strong>2 крупных</strong> — Cheung's Gold Traders (формально CGSE-аффинажер с 1997, но физический аффинаж сейчас через ACPMR) и Wing Fung (топ-3 по обороту, но плавильня в 2023 продана Metalor).</p>
-          <p><strong>12 локальных</strong> — Kaiser, Po Sang, Marigold, King Fook, Wong Sha, Lee Cheong, First Asia Merchants, Tai Fung, WZ Gold, Acetop, Sun Yip Hong, Upbest. Это в основном традиционные семейные bullion-бизнесы Гонконга с 1940-х годов, часть с банковской аффилиацией (Po Sang — BoC).</p>
+          <p><strong>12 локальных</strong> — Kaiser, Po Sang, King Fook, Wong Sha, Lee Cheong, First Asia Merchants, Tai Fung, WZ Gold, Acetop, Sun Yip Hong, Upbest. Это в основном традиционные семейные bullion-бизнесы Гонконга с 1940-х годов, часть с банковской аффилиацией (Po Sang — BoC). Плюс одна особая позиция — <strong>Heraeus Limited #054</strong> *: в официальном реестре CGSE значится формулировкой «Heraeus Limited is a member», что отражает международный статус компании. Юридически это тот же экономический субъект, что и аффинажный завод Heraeus в Фанлинге (отдельная категория на карте) — просто для целей CGSE-торговли значится через trading-юр.лицо в Хун-Хом.</p>
         </div>
       </div>
     </div>
@@ -1451,7 +1451,7 @@ footer .sources span { color: var(--text-dim); }
       <strong>ИСТОЧНИКИ</strong> · <span>Список LBMA Good Delivery · реестр аккредитованных аффинажеров CGSE · Customs &amp; Excise Гонконга (режим DPMS) · ответы Legislative Council по расширению PMS · объявления Shanghai Gold Exchange (sge.com.cn, июнь 2025) · BullionStar Gold University · Bloomberg / SCMP / Reuters · публичные материалы Heraeus, Metalor, AC Precious Metals</span>
     </div>
     <div>
-      <strong>v50</strong> · Брифинг
+      <strong>v52</strong> · Брифинг
     </div>
   </footer>
 
@@ -1586,16 +1586,16 @@ const minters = [
   },
   { name: 'Kaiser Precious Metals', area: 'Shun Tak Centre, Сентрал', coords: [22.2882, 114.1518], member: 'CGSE #4', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Член CGSE Bullion Group, authorised bar minter. Производит слитки из уже очищенного металла.' },
   { name: 'Po Sang Financial Investment Services', area: 'BOC Tower, Сентрал', coords: [22.2791, 114.1614], member: 'CGSE #5', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', site: 'posang.com.hk', note: 'Подразделение Bank of China по торговле драгметаллами. Минтер слитков по CGSE-стандарту.' },
-  { name: 'Marigold International Bullion Dealers', area: 'Квун-Тонг, Коулун', coords: [22.3108, 114.2210], member: 'CGSE #23', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Член CGSE Bullion Group, authorised bar minter.' },
-  { name: 'King Fook Gold & Jewellery', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2842, 114.1570], member: 'CGSE #58', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', site: 'kingfook.com', note: 'Семейный ювелирный и bullion-бизнес (HKSE: 280). Authorised bar minter CGSE.' },
-  { name: 'Wong Sha Co', area: 'Джордан, Коулун', coords: [22.3066, 114.1700], member: 'CGSE #61', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Традиционный bullion dealer / authorised bar minter.' },
-  { name: 'Lee Cheong Gold Dealers', area: 'Wing On House, Сентрал', coords: [22.2840, 114.1580], member: 'CGSE #98', bars: 'только мелкие слитки · чистота 99%', tier: 'local', status: 'confirmed', note: 'Один из старейших золотых дилеров Гонконга. Authorised bar minter.' },
-  { name: 'First Asia Merchants Bullion', area: 'Ванчай', coords: [22.2780, 114.1735], member: 'CGSE #114', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
-  { name: 'Tai Fung Goldsmith & Refinery', area: 'Адмиралти', coords: [22.2810, 114.1640], member: 'CGSE #132', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Несмотря на слово "Refinery" в названии, по статусу CGSE — bar minter / dealer, не полноценный аффинажный завод.' },
-  { name: 'WZ Gold Group', area: 'Nina Tower, Цуэн-Ван, Новые территории', coords: [22.3700, 114.1180], member: 'CGSE #141', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
-  { name: 'Acetop Precious Metals', area: 'Цим-Ша-Цуй, Коулун', coords: [22.2980, 114.1690], member: 'CGSE #145', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
-  { name: 'Sun Yip Hong Gold Dealers', area: 'Хун-Хом, Коулун', coords: [22.3055, 114.1858], member: 'CGSE #152', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
-  { name: 'Upbest Bullion Company', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2865, 114.1505], member: 'CGSE #216', bars: '1 кг золото (99,99%) · 15 кг серебро', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter. Работает также с серебром.' }
+  { name: 'Heraeus Limited (CGSE-член)', area: 'The Peninsula Square, Хун-Хом, Коулун', coords: [22.3022, 114.1862], member: 'CGSE #054 *', bars: '99 / 999,9 1 кг · 99,9% серебро', tier: 'local', status: 'confirmed', note: 'Юридическое лицо группы Heraeus, аккредитованное как CGSE Bullion Group member. В официальном списке CGSE Accredited Refineries указано особой формулировкой — <strong>«Heraeus Limited is a member»</strong> (* эта пометка отражает международный статус компании, в отличие от локальных гонконгских участников). Тот же экономический субъект, что и Heraeus Hong Kong (аффинажный завод в Фанлинге) — но на CGSE значится через юр.лицо для работы с торговыми контрактами биржи.' },
+  { name: 'King Fook Gold & Jewellery', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2829, 114.1569], member: 'CGSE #58', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', site: 'kingfook.com', note: 'Семейный ювелирный и bullion-бизнес (HKSE: 280). Authorised bar minter CGSE.' },
+  { name: 'Wong Sha Co', area: 'Джордан, Коулун', coords: [22.3064, 114.1679], member: 'CGSE #61', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Традиционный bullion dealer / authorised bar minter.' },
+  { name: 'Lee Cheong Gold Dealers', area: 'Wing On House, Сентрал', coords: [22.2839, 114.1566], member: 'CGSE #98', bars: 'только мелкие слитки · чистота 99%', tier: 'local', status: 'confirmed', note: 'Один из старейших золотых дилеров Гонконга. Authorised bar minter.' },
+  { name: 'First Asia Merchants Bullion', area: 'Ванчай', coords: [22.2782, 114.1783], member: 'CGSE #114', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Tai Fung Goldsmith & Refinery', area: 'Адмиралти', coords: [22.2808, 114.1630], member: 'CGSE #132', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Несмотря на слово "Refinery" в названии, по статусу CGSE — bar minter / dealer, не полноценный аффинажный завод.' },
+  { name: 'WZ Gold Group', area: 'Nina Tower, Цуэн-Ван, Новые территории', coords: [22.3688, 114.1129], member: 'CGSE #141', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Acetop Precious Metals', area: 'Цим-Ша-Цуй, Коулун', coords: [22.2992, 114.1688], member: 'CGSE #145', bars: '1 кг · чистота 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Sun Yip Hong Gold Dealers', area: 'Яу-Ма-Тей, Коулун', coords: [22.3048, 114.1708], member: 'CGSE #152', bars: '1 кг · чистота 99% или 99,99%', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter.' },
+  { name: 'Upbest Bullion Company', area: 'Дес-Вё-роуд, Сентрал', coords: [22.2867, 114.1508], member: 'CGSE #216', bars: '1 кг золото (99,99%) · 15 кг серебро', tier: 'local', status: 'confirmed', note: 'Bullion dealer / authorised bar minter. Работает также с серебром.' }
 ];
 
 const vaults = [
